@@ -199,7 +199,7 @@ function handleHostConnection(c){
   c.on("error",e=>toast("Ошибка соединения: "+e.message));
 }
 function createRoom(){
-  closeConnections();host=true;seat=0;roomId="durak-"+Math.random().toString(36).slice(2,8);
+  closeConnections();host=true;seat=0;roomId=String(Math.floor(100000+Math.random()*900000));
   say("Создаём комнату…");peer=new Peer(roomId,{debug:0});
   peer.on("open",id=>{roomId=id;$("hostRoomCode").textContent=id;$("hostRoomInfo").classList.remove("hidden");say("Комната готова. Отправь код другу и дождись подключения.");connection(true,"Комната создана");showGame();$("opponentName").textContent="Ожидание игрока";$("opponentLabel").textContent="Соперник";});
   peer.on("connection",handleHostConnection);
@@ -212,8 +212,8 @@ function createRoom(){
   requestMedia();
 }
 function joinRoom(code){
-  closeConnections();host=false;seat=1;roomId=code.trim();
-  if(!roomId){toast("Введи код комнаты");return}
+  closeConnections();host=false;seat=1;roomId=String(code).replace(/\D/g,"").slice(0,6);
+  if(!/^\d{6}$/.test(roomId)){toast("Введи 6 цифр кода комнаты");return}
   say("Подключаемся…");peer=new Peer(undefined,{debug:0});
   peer.on("open",()=>{
     conn=peer.connect(roomId,{reliable:true});
@@ -232,6 +232,7 @@ function joinRoom(code){
 }
 $("createRoom").addEventListener("click",createRoom);
 $("joinRoom").addEventListener("click",()=>joinRoom($("roomInput").value));
+$("roomInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
 $("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom($("roomInput").value)});
 $("copyInvite").addEventListener("click",async()=>{
   const invite=`Подкидной дурак онлайн. Код комнаты: ${roomId}`;
