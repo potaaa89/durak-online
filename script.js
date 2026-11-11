@@ -48,7 +48,7 @@ function validAttack(player,c){
   const g=state;
   // Атакующий вправе подкидывать карты и во время защиты.
   if(player!==g.attacker||g.finished)return false;
-  if(g.phase!=="attack"&&g.phase!=="defend")return false;
+  if(g.phase!=="attack"&&g.phase!=="defend"&&g.phase!=="take")return false;
   if(g.table.length===0)return g.phase==="attack"&&g.turn===player;
   if(g.table.length>=Math.min(6,g.roundLimit))return false;
   const ranks=new Set(g.table.flatMap(p=>[p.attack.rank,p.defense?.rank].filter(Boolean)));
@@ -66,7 +66,7 @@ function applyAction(player,action,data){
   if(action==="PLAY"){
     const index=hand.findIndex(c=>cardId(c)===data.id);if(index<0)return;
     const c=hand[index];
-    if(player===g.attacker&&validAttack(player,c)){
+    if(player===g.attacker&&validAttack(player,c)&&(g.phase!=="take"||g.turn===player)){
       hand.splice(index,1);g.table.push({attack:c,defense:null});
       if(g.phase==="attack"){g.turn=g.defender;g.phase="defend";}
     }else if(player===g.defender&&g.phase==="defend"&&g.turn===player){
@@ -77,7 +77,11 @@ function applyAction(player,action,data){
     publish();
   }else if(action==="TAKE"){
     if(player!==g.defender||g.turn!==player||g.phase!=="defend")return;
-    for(const p of g.table){hand.push(p.attack);if(p.defense)hand.push(p.defense)}
+    g.phase="take";g.turn=g.attacker;publish();
+  }else if(action==="FINISH_THROW"){
+    if(player!==g.attacker||g.turn!==player||g.phase!=="take")return;
+    const defenderHand=g.hands[g.defender];
+    for(const p of g.table){defenderHand.push(p.attack);if(p.defense)defenderHand.push(p.defense)}
     g.table=[];g.turn=g.attacker;g.phase="attack";finishRound();
   }else if(action==="BEAT"){
     if(player!==g.attacker||g.turn!==player||g.phase!=="attack"||!g.table.length||g.table.some(p=>!p.defense))return;
@@ -119,11 +123,13 @@ function render(){
   const myTurn=g.turn===mySeat;
   let msg="Ход соперника";
   if(g.finished)msg="Партия завершена";
+  else if(g.phase==="take"&&g.attacker===mySeat)msg="Соперник берёт карты. Можете подкинуть карты того же достоинства, затем завершите подкидывание.";
   else if(g.attacker===mySeat&&(g.phase==="attack"||g.phase==="defend"))msg=g.table.length?"Вы можете подкинуть карту того же достоинства.":"Ваш ход: выберите карту для атаки.";
   else if(myTurn)msg="Ваш ход: отбейтесь или возьмите карты.";
   else msg=g.phase==="attack"?"Соперник выбирает атаку…":"Соперник отбивается…";
   $("turnMessage").textContent=msg;$("gameHint").textContent=msg;
-  $("takeBtn").disabled=!(myTurn&&g.phase==="defend"&&g.defender===mySeat);
+  $("takeBtn").textContent=g.phase==="take"?"✓ Завершить подкидывание":"↙ Беру";
+  $("takeBtn").disabled=g.phase==="take"?!(myTurn&&g.attacker===mySeat):!(myTurn&&g.phase==="defend"&&g.defender===mySeat);
   $("beatBtn").disabled=!(myTurn&&g.phase==="attack"&&g.attacker===mySeat&&g.table.length>0&&g.table.every(p=>p.defense));
   $("rematchBtn").classList.toggle("hidden",!g.finished);
   if(!g.finished)hideResult();
@@ -135,7 +141,7 @@ function render(){
 function onCardTap(id){
   if(!state||state.finished)return;
   const mySeat=host?0:1;
-  const canAttack=state.attacker===mySeat&&(state.phase==="attack"||state.phase==="defend");
+  const canAttack=state.attacker===mySeat&&(state.phase==="attack"||state.phase==="defend"||state.phase==="take");
   if(state.turn!==mySeat&&!canAttack){toast("Сейчас ход соперника");return}
   const hand=host?state.hands[0]:myHand;
   if(!hand.some(c=>cardId(c)===id))return;
@@ -232,7 +238,7 @@ $("copyInvite").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(invite);toast("Приглашение скопировано")}
   catch{toast("Код комнаты: "+roomId)}
 });
-$("takeBtn").addEventListener("click",()=>sendAction("TAKE"));
+$("takeBtn").addEventListener("click",()=>sendAction(state?.phase==="take"?"FINISH_THROW":"TAKE"));
 $("beatBtn").addEventListener("click",()=>sendAction("BEAT"));
 $("leaveGame").addEventListener("click",returnLobby);
 $("rematchBtn").addEventListener("click",()=>sendAction("REMATCH"));
