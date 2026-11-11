@@ -258,7 +258,7 @@ $("videoToggle").addEventListener("click",()=>{
 });
 (()=>{
   const box=$("videoDock").querySelector(".self-box");
-  const table=$(".table");
+  const table=document.querySelector(".table");
   if(!box||!table)return;
   let dragging=false,offsetX=0,offsetY=0;
   box.addEventListener("pointerdown",e=>{
