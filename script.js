@@ -256,5 +256,34 @@ $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
   $("videoToggle").querySelector("span").textContent=videoCollapsed?"Показать видео":"Свернуть видео";
 });
+(()=>{
+  const box=$("videoDock").querySelector(".self-box");
+  const table=$(".table");
+  if(!box||!table)return;
+  let dragging=false,offsetX=0,offsetY=0;
+  box.addEventListener("pointerdown",e=>{
+    if(e.button!==undefined&&e.button!==0)return;
+    const br=box.getBoundingClientRect(),tr=table.getBoundingClientRect();
+    if(box.style.left===""){
+      box.style.left=(br.left-tr.left)+"px";
+      box.style.top=(br.top-tr.top)+"px";
+      box.style.right="auto";
+    }
+    dragging=true;offsetX=e.clientX-br.left;offsetY=e.clientY-br.top;
+    box.classList.add("dragging");box.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  box.addEventListener("pointermove",e=>{
+    if(!dragging)return;
+    const tr=table.getBoundingClientRect(),br=box.getBoundingClientRect();
+    const maxLeft=Math.max(0,tr.width-br.width),maxTop=Math.max(0,tr.height-br.height);
+    const left=Math.min(maxLeft,Math.max(0,e.clientX-tr.left-offsetX));
+    const top=Math.min(maxTop,Math.max(0,e.clientY-tr.top-offsetY));
+    box.style.left=left+"px";box.style.top=top+"px";
+  });
+  const stop=()=>{dragging=false;box.classList.remove("dragging")};
+  box.addEventListener("pointerup",stop);
+  box.addEventListener("pointercancel",stop);
+})();
 window.addEventListener("beforeunload",closeConnections);
 })();
