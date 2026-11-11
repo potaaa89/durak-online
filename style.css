@@ -145,3 +145,17 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .my-hand .card:nth-child(5){transform:rotate(4deg) translateY(1px)}
   .my-hand .card:nth-child(6){transform:rotate(6deg) translateY(3px)}
 }
+
+
+/* Wider, dynamically curved hand fan */
+.my-hand{justify-content:center;overflow-x:auto;padding-left:30px;padding-right:30px}
+.my-hand .card{margin-left:-24px;transform-origin:50% 118%;will-change:transform}
+.my-hand .card:first-child{margin-left:0}
+.my-hand .card:nth-child(n){transform:rotate(var(--fan-angle,0deg)) translateY(var(--fan-lift,0px))}
+.my-hand .card:hover{transform:translateY(-14px) rotate(0deg)!important}
+.my-hand .card.selected{transform:translateY(-20px) rotate(0deg)!important}
+@media(max-width:760px){
+  .my-hand{justify-content:flex-start;padding-left:26px;padding-right:18px;overflow-x:auto}
+  .my-hand .card{margin-left:-23px}
+  .my-hand .card:nth-child(n){transform:rotate(var(--fan-angle,0deg)) translateY(var(--fan-lift,0px))}
+}
