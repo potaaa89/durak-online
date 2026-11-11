@@ -342,6 +342,7 @@ $("leaveGame").addEventListener("click",returnLobby);
 $("rematchBtn").addEventListener("click",()=>sendAction("REMATCH"));
 $("modalRematch").addEventListener("click",()=>sendAction("REMATCH"));
 $("modalClose").addEventListener("click",hideResult);
+$("modalLobby").addEventListener("click",returnLobby);
 $("micBtn").addEventListener("click",()=>{
   if(!localStream)return;micEnabled=!micEnabled;localStream.getAudioTracks().forEach(t=>t.enabled=micEnabled);
   $("micBtn").classList.toggle("off",!micEnabled);$("micBtn").querySelector("span").textContent=micEnabled?"Микрофон":"Микрофон выкл.";
