@@ -205,3 +205,21 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 
 /* Card motion is driven by Web Animations API */
 .my-hand .card,.battle-pair,.battle-pair .card{animation:none!important}
+
+/* Clear, celebratory end-of-game screen */
+.modal{backdrop-filter:blur(7px);background:rgba(0,12,8,.78)}
+.modal-card{position:relative;overflow:hidden;width:min(410px,100%);padding:30px 26px 24px;border-radius:22px;background:radial-gradient(circle at 50% 0%,#1b6845 0,#0b3022 48%,#08251b 100%);border:1px solid #d7bd79;box-shadow:0 24px 90px #000b,0 0 35px #d8b96b22;animation:resultPop .48s cubic-bezier(.18,.8,.25,1) both}
+.modal-card:before{content:"";position:absolute;inset:9px;border:1px solid #e5ce8b35;border-radius:15px;pointer-events:none}
+.modal-icon{position:relative;display:grid;place-items:center;width:76px;height:76px;margin:0 auto 12px;border-radius:50%;font-size:38px;background:#f0d58b18;border:1px solid #f0d58b66;box-shadow:0 0 30px #f0d58b20}
+.modal-status{position:relative;color:#e4ca87;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.modal-card h2{position:relative;font:700 34px Georgia,serif;margin:10px 0 8px;color:#fff4d9}
+.modal-card p{position:relative;max-width:300px;margin:0 auto 22px;color:#c5d8ca;font-size:14px;line-height:1.6}
+.modal-card .wide{position:relative;width:100%;margin-top:9px;min-height:43px}
+.modal-card .primary{background:linear-gradient(135deg,#e8cc83,#bd9445);color:#1d291e;border:0;border-radius:10px;font-weight:800;box-shadow:0 5px 16px #0004}
+.modal-card .secondary{background:#ffffff12;border:1px solid #ffffff35;color:#f5ecd8;border-radius:10px}
+.modal-card .text{background:transparent;border:0;color:#b7c8bc;font-size:12px;padding:8px}
+.modal-card.result-win .modal-icon{background:#e9c86c22;border-color:#f2d58a;box-shadow:0 0 35px #eac96a35}
+.modal-card.result-loss .modal-icon{background:#ffffff0c;border-color:#b5c7bb66}
+.modal-card.result-draw .modal-icon{background:#8bc8a522;border-color:#9bcbb0}
+@keyframes resultPop{0%{opacity:0;transform:translateY(22px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:420px){.modal{padding:14px}.modal-card{padding:26px 20px 20px}.modal-card h2{font-size:30px}}
