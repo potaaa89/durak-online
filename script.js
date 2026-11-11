@@ -201,7 +201,7 @@ function handleHostConnection(c){
 function createRoom(){
   closeConnections();host=true;seat=0;roomId=String(Math.floor(1000+Math.random()*9000));
   say("Создаём комнату…");peer=new Peer(roomId,{debug:0});
-  peer.on("open",id=>{roomId=id;$("hostRoomCode").textContent=id;$("hostRoomInfo").classList.remove("hidden");say("Комната готова. Отправь код другу и дождись подключения.");connection(true,"Комната создана");showGame();$("opponentName").textContent="Ожидание игрока";$("opponentLabel").textContent="Соперник";});
+  peer.on("open",id=>{roomId=id;$("hostRoomCode").textContent=String(id).replace(/\D/g,"").slice(0,4);$("hostRoomInfo").classList.remove("hidden");say("Комната готова. Отправь код другу и дождись подключения.");connection(true,"Комната создана");showGame();$("opponentName").textContent="Ожидание игрока";$("opponentLabel").textContent="Соперник";});
   peer.on("connection",handleHostConnection);
   peer.on("call",incoming=>{
     if(!localStream){incoming.answer();mediaCall=incoming;incoming.on("stream",showRemote);return}
