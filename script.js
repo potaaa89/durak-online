@@ -37,32 +37,50 @@ function updateMusicButton(){
 }
 function playAmbientMelody(){
   if(!musicEnabled||!audioContext||audioContext.state!=="running")return;
-  const phrases=[
-    [392,493.88,587.33,493.88,440,523.25,659.25,523.25],
-    [349.23,440,523.25,440,392,493.88,587.33,493.88],
-    [329.63,392,493.88,392,349.23,440,523.25,440],
-    [293.66,369.99,440,369.99,329.63,392,493.88,392]
+  // Авторский спокойный lounge-jazz: мягкие Rhodes-аккорды, контрабас и неторопливая фраза.
+  const bars=[
+    {chord:[146.83,174.61,220,261.63,329.63],bass:[73.42,110,130.81,110],lead:[440,523.25,587.33,523.25]},
+    {chord:[146.83,174.61,207.65,246.94,329.63],bass:[98,146.83,164.81,146.83],lead:[493.88,587.33,659.25,587.33]},
+    {chord:[130.81,164.81,196,246.94,293.66],bass:[65.41,98,123.47,98],lead:[392,493.88,587.33,493.88]},
+    {chord:[110,138.59,164.81,207.65,261.63],bass:[73.42,110,138.59,110],lead:[415.3,493.88,554.37,493.88]}
   ];
-  const phrase=phrases[Math.floor(Date.now()/16000)%phrases.length];
+  const bar=bars[Math.floor(Date.now()/3900)%bars.length];
   const now=audioContext.currentTime;
-  phrase.forEach((freq,i)=>{
-    const start=now+i*.48;
+  // Тёплый протяжный аккорд, похожий на электрическое пианино.
+  bar.chord.forEach((freq,i)=>{
     const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
-    osc.type="triangle";osc.frequency.setValueAtTime(freq,start);
-    filter.type="lowpass";filter.frequency.value=2400;
-    gain.gain.setValueAtTime(.0001,start);
-    gain.gain.exponentialRampToValueAtTime(.62,start+.025);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.44);
+    osc.type=i===0?"sine":"triangle";osc.frequency.setValueAtTime(freq,now);
+    filter.type="lowpass";filter.frequency.value=1050;
+    gain.gain.setValueAtTime(.0001,now);
+    gain.gain.exponentialRampToValueAtTime(i===0?.12:.075,now+.32);
+    gain.gain.setValueAtTime(i===0?.12:.075,now+3.15);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+3.85);
     osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
-    osc.start(start);osc.stop(start+.47);
-    musicVoices.push({osc,gain});
+    osc.start(now);osc.stop(now+3.9);musicVoices.push({osc,gain});
   });
-  const bass=audioContext.createOscillator(),bassGain=audioContext.createGain();
-  bass.type="sine";bass.frequency.value=[98,87.31,82.41,73.42][Math.floor(Date.now()/16000)%4];
-  bassGain.gain.setValueAtTime(.0001,now);
-  bassGain.gain.exponentialRampToValueAtTime(.18,now+.08);
-  bassGain.gain.exponentialRampToValueAtTime(.0001,now+3.7);
-  bass.connect(bassGain);bassGain.connect(musicMaster);bass.start(now);bass.stop(now+3.8);
+  // Ненавязчивая синкопированная мелодия.
+  bar.lead.forEach((freq,i)=>{
+    const start=now+.18+i*.88+(i%2?.12:0);
+    const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
+    osc.type="sine";osc.frequency.setValueAtTime(freq,start);
+    filter.type="lowpass";filter.frequency.value=1800;
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.exponentialRampToValueAtTime(.22,start+.045);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.72);
+    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
+    osc.start(start);osc.stop(start+.75);musicVoices.push({osc,gain});
+  });
+  // Мягкий walking bass в четыре доли.
+  bar.bass.forEach((freq,i)=>{
+    const start=now+i*.94;
+    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+    osc.type="triangle";osc.frequency.setValueAtTime(freq,start);
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.exponentialRampToValueAtTime(.16,start+.035);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.72);
+    osc.connect(gain);gain.connect(musicMaster);
+    osc.start(start);osc.stop(start+.76);musicVoices.push({osc,gain});
+  });
   musicTimer=setTimeout(()=>{
     musicVoices=[];
     playAmbientMelody();
