@@ -46,8 +46,10 @@ function decodeState(msg){
 function sendAction(action,data={}){if(host){applyAction(0,action,data);return}if(conn&&conn.open){conn.send({kind:"ACTION",action,data});return}toast("Нет соединения с создателем комнаты. Переподключись.")}
 function validAttack(player,c){
   const g=state;
-  if(player!==g.attacker||g.turn!==player||g.phase!=="attack")return false;
-  if(g.table.length===0)return true;
+  // Атакующий вправе подкидывать карты и во время защиты.
+  if(player!==g.attacker||g.finished)return false;
+  if(g.phase!=="attack"&&g.phase!=="defend")return false;
+  if(g.table.length===0)return g.phase==="attack"&&g.turn===player;
   if(g.table.length>=Math.min(6,g.roundLimit))return false;
   const ranks=new Set(g.table.flatMap(p=>[p.attack.rank,p.defense?.rank].filter(Boolean)));
   return ranks.has(c.rank);
@@ -64,8 +66,9 @@ function applyAction(player,action,data){
   if(action==="PLAY"){
     const index=hand.findIndex(c=>cardId(c)===data.id);if(index<0)return;
     const c=hand[index];
-    if(player===g.attacker&&g.phase==="attack"&&g.turn===player&&validAttack(player,c)){
-      hand.splice(index,1);g.table.push({attack:c,defense:null});g.turn=g.defender;g.phase="defend";
+    if(player===g.attacker&&validAttack(player,c)){
+      hand.splice(index,1);g.table.push({attack:c,defense:null});
+      if(g.phase==="attack"){g.turn=g.defender;g.phase="defend";}
     }else if(player===g.defender&&g.phase==="defend"&&g.turn===player){
       const pair=g.table.find(p=>!p.defense&&beats(p.attack,c,g.trump));if(!pair)return;
       hand.splice(index,1);pair.defense=c;
@@ -116,8 +119,9 @@ function render(){
   const myTurn=g.turn===mySeat;
   let msg="Ход соперника";
   if(g.finished)msg="Партия завершена";
-  else if(myTurn)msg=g.phase==="attack"?(g.table.length?"Ваш ход: подкиньте карту или нажмите «Бито».":"Ваш ход: выберите карту для атаки."):"Ваш ход: отбейтесь или возьмите карты.";
-  else msg=g.phase==="attack"?"Соперник атакует или подкидывает…":"Соперник отбивается…";
+  else if(g.attacker===mySeat&&(g.phase==="attack"||g.phase==="defend"))msg=g.table.length?"Вы можете подкинуть карту того же достоинства.":"Ваш ход: выберите карту для атаки.";
+  else if(myTurn)msg="Ваш ход: отбейтесь или возьмите карты.";
+  else msg=g.phase==="attack"?"Соперник выбирает атаку…":"Соперник отбивается…";
   $("turnMessage").textContent=msg;$("gameHint").textContent=msg;
   $("takeBtn").disabled=!(myTurn&&g.phase==="defend"&&g.defender===mySeat);
   $("beatBtn").disabled=!(myTurn&&g.phase==="attack"&&g.attacker===mySeat&&g.table.length>0&&g.table.every(p=>p.defense));
@@ -131,7 +135,8 @@ function render(){
 function onCardTap(id){
   if(!state||state.finished)return;
   const mySeat=host?0:1;
-  if(state.turn!==mySeat){toast("Сейчас ход соперника");return}
+  const canAttack=state.attacker===mySeat&&(state.phase==="attack"||state.phase==="defend");
+  if(state.turn!==mySeat&&!canAttack){toast("Сейчас ход соперника");return}
   const hand=host?state.hands[0]:myHand;
   if(!hand.some(c=>cardId(c)===id))return;
   sendAction("PLAY",{id});selected=null;
