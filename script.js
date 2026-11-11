@@ -6,6 +6,43 @@ const RV = Object.fromEntries(RANKS.map((r,i)=>[r,i]));
 let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
+let audioContext=null,lastSoundSnapshot=null;
+function unlockAudio(){
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
+  if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
+}
+function playSfx(kind){
+  if(!audioContext||audioContext.state!=="running")return;
+  const now=audioContext.currentTime;
+  const notes=kind==="deal"?[440,554,659]:kind==="take"?[330,247]:kind==="beat"?[660,880]:kind==="win"?[523,659,784,1047]:[620,740];
+  notes.forEach((freq,i)=>{
+    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+    osc.type=kind==="take"?"triangle":"sine";
+    osc.frequency.setValueAtTime(freq,now+i*.075);
+    gain.gain.setValueAtTime(.0001,now+i*.075);
+    gain.gain.exponentialRampToValueAtTime(kind==="win"?.12:.065,now+i*.075+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+i*.075+.14);
+    osc.connect(gain);gain.connect(audioContext.destination);
+    osc.start(now+i*.075);osc.stop(now+i*.075+.15);
+  });
+}
+function detectGameSound(g,hand,otherCount){
+  const snapshot={table:g.table.map(p=>cardId(p.attack)+":"+(p.defense?cardId(p.defense):"")).join("|"),hand:hand.length,other:otherCount,finished:g.finished,deck:host?g.deck.length:g.deckCount};
+  if(lastSoundSnapshot){
+    const old=lastSoundSnapshot;
+    if(!old.finished&&snapshot.finished)playSfx("win");
+    else if(snapshot.table!==old.table){
+      const oldCards=old.table?old.table.split("|").length:0;
+      const newCards=snapshot.table?snapshot.table.split("|").length:0;
+      const oldDef=(old.table.match(/:/g)||[]).filter((_,i)=>old.table.split("|")[i]?.endsWith(":")===false).length;
+      const newDef=(snapshot.table.match(/:/g)||[]).filter((_,i)=>snapshot.table.split("|")[i]?.endsWith(":")===false).length;
+      if(newCards>oldCards||newDef>oldDef)playSfx("card");
+      else if(!snapshot.table&&old.table)playSfx(g.phase==="attack"?"beat":"take");
+    }else if(snapshot.hand>old.hand&&snapshot.deck<old.deck)playSfx("deal");
+  }else if(hand.length)playSfx("deal");
+  lastSoundSnapshot=snapshot;
+}
 const isRed = c => c.suit==="♥" || c.suit==="♦";
 const cardId = c => c.rank+c.suit;
 const buildDeck = () => SUITS.flatMap(s=>RANKS.map(r=>({rank:r,suit:s})));
@@ -110,7 +147,7 @@ function checkWinner(){
 function publish(){if(host)sendState();else render()}
 function render(){
   if(!state)return;
-  const g=state, hand=host?g.hands[0]:myHand, otherCount=host?g.hands[1].length:g.opponentCount, mySeat=host?0:1;
+  const g=state, hand=host?g.hands[0]:myHand, otherCount=host?g.hands[1].length:g.opponentCount, mySeat=host?0:1;\n  detectGameSound(g,hand,otherCount);
   $("deckCount").textContent=host?g.deck.length:g.deckCount;
   $("opponentCount").textContent=`${otherCount} карт`;$("opponentCards").textContent=`${otherCount} карт`;
   $("myCount").textContent=`${hand.length} карт`;
@@ -119,7 +156,14 @@ function render(){
   $("trumpCard").style.color=["♥","♦"].includes(g.trump)?"#c52e37":"#18202a";
   $("battlefield").innerHTML=g.table.length?g.table.map(p=>`<div class="battle-pair">${cardMarkup(p.attack)}${p.defense?cardMarkup(p.defense,false,"defense"):""}</div>`).join(""):'<div class="empty-table">Карточный стол</div>';
   $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c))).join("");
-  $("myHand").querySelectorAll(".card").forEach(el=>el.addEventListener("click",()=>onCardTap(el.dataset.card)));
+  const handCards=$("myHand").querySelectorAll(".card");
+  handCards.forEach((el,i)=>{
+    const count=handCards.length,angle=count>1?(i-(count-1)/2)*Math.min(5.5,27/(count-1)):0;
+    const lift=Math.abs(angle)*.34;
+    el.style.setProperty("--fan-angle",angle+"deg");
+    el.style.setProperty("--fan-lift",lift+"px");
+    el.addEventListener("click",()=>onCardTap(el.dataset.card));
+  });
   const myTurn=g.turn===mySeat;
   let msg="Ход соперника";
   if(g.finished)msg="Партия завершена";
@@ -230,7 +274,7 @@ function joinRoom(code){
   showGame();
   requestMedia();
 }
-$("createRoom").addEventListener("click",createRoom);
+document.addEventListener("pointerdown",unlockAudio,{once:true});\n$("createRoom").addEventListener("click",createRoom);
 $("joinRoom").addEventListener("click",()=>joinRoom($("roomInput").value));
 $("roomInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
 $("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom($("roomInput").value)});
