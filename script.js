@@ -261,29 +261,38 @@ $("videoToggle").addEventListener("click",()=>{
   const table=document.querySelector(".table");
   if(!box||!table)return;
   let dragging=false,offsetX=0,offsetY=0;
-  box.addEventListener("pointerdown",e=>{
-    if(e.button!==undefined&&e.button!==0)return;
-    const br=box.getBoundingClientRect(),tr=table.getBoundingClientRect();
+  const point=e=>e.touches?e.touches[0]:e;
+  const begin=e=>{
+    if(e.type==="mousedown"&&e.button!==0)return;
+    const p=point(e),br=box.getBoundingClientRect(),tr=table.getBoundingClientRect();
     if(box.style.left===""){
       box.style.left=(br.left-tr.left)+"px";
       box.style.top=(br.top-tr.top)+"px";
       box.style.right="auto";
     }
-    dragging=true;offsetX=e.clientX-br.left;offsetY=e.clientY-br.top;
-    box.classList.add("dragging");box.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  box.addEventListener("pointermove",e=>{
+    dragging=true;offsetX=p.clientX-br.left;offsetY=p.clientY-br.top;
+    box.classList.add("dragging");
+    if(e.cancelable)e.preventDefault();
+  };
+  const move=e=>{
     if(!dragging)return;
-    const tr=table.getBoundingClientRect(),br=box.getBoundingClientRect();
-    const maxLeft=Math.max(0,tr.width-br.width),maxTop=Math.max(0,tr.height-br.height);
-    const left=Math.min(maxLeft,Math.max(0,e.clientX-tr.left-offsetX));
-    const top=Math.min(maxTop,Math.max(0,e.clientY-tr.top-offsetY));
+    const p=point(e),tr=table.getBoundingClientRect(),br=box.getBoundingClientRect();
+    const left=Math.min(Math.max(0,tr.width-br.width),Math.max(0,p.clientX-tr.left-offsetX));
+    const top=Math.min(Math.max(0,tr.height-br.height),Math.max(0,p.clientY-tr.top-offsetY));
     box.style.left=left+"px";box.style.top=top+"px";
-  });
+    if(e.cancelable)e.preventDefault();
+  };
   const stop=()=>{dragging=false;box.classList.remove("dragging")};
-  box.addEventListener("pointerup",stop);
-  box.addEventListener("pointercancel",stop);
+  box.addEventListener("pointerdown",begin);
+  document.addEventListener("pointermove",move,{passive:false});
+  document.addEventListener("pointerup",stop);
+  document.addEventListener("pointercancel",stop);
+  box.addEventListener("mousedown",begin);
+  document.addEventListener("mousemove",move);
+  document.addEventListener("mouseup",stop);
+  box.addEventListener("touchstart",begin,{passive:false});
+  document.addEventListener("touchmove",move,{passive:false});
+  document.addEventListener("touchend",stop);
 })();
 window.addEventListener("beforeunload",closeConnections);
 })();
