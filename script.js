@@ -148,7 +148,8 @@ function checkWinner(){
 function publish(){if(host)sendState();else render()}
 function render(){
   if(!state)return;
-  const g=state, hand=host?g.hands[0]:myHand, otherCount=host?g.hands[1].length:g.opponentCount, mySeat=host?0:1;\n  detectGameSound(g,hand,otherCount);
+  const g=state, hand=host?g.hands[0]:myHand, otherCount=host?g.hands[1].length:g.opponentCount, mySeat=host?0:1;
+  detectGameSound(g,hand,otherCount);
   $("deckCount").textContent=host?g.deck.length:g.deckCount;
   $("opponentCount").textContent=`${otherCount} карт`;$("opponentCards").textContent=`${otherCount} карт`;
   $("myCount").textContent=`${hand.length} карт`;
@@ -297,7 +298,8 @@ function joinRoom(code){
   peer.on("error",e=>failJoin("Ошибка сервера: "+(e?.type||e?.message||"не удалось подключиться")));
   requestMedia();
 }
-document.addEventListener("pointerdown",unlockAudio,{once:true});\n$("createRoom").addEventListener("click",createRoom);
+document.addEventListener("pointerdown",unlockAudio,{once:true});
+$("createRoom").addEventListener("click",createRoom);
 $("joinRoom").addEventListener("click",()=>joinRoom($("roomInput").value));
 $("roomInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
 $("roomInput").addEventListener("keydown",e=>{if(e.key==="Enter")joinRoom($("roomInput").value)});
