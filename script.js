@@ -38,7 +38,7 @@ function detectGameSound(g,hand,otherCount){
       const oldDef=(old.table.match(/:/g)||[]).filter((_,i)=>old.table.split("|")[i]?.endsWith(":")===false).length;
       const newDef=(snapshot.table.match(/:/g)||[]).filter((_,i)=>snapshot.table.split("|")[i]?.endsWith(":")===false).length;
       if(newCards>oldCards||newDef>oldDef)playSfx("card");
-      else if(!snapshot.table&&old.table)playSfx(g.phase==="attack"?"beat":"take");
+      else if(!snapshot.table&&old.table)playSfx(snapshot.hand+snapshot.other>old.hand+old.other?"take":"beat");
     }else if(snapshot.hand>old.hand&&snapshot.deck<old.deck)playSfx("deal");
   }else if(hand.length)playSfx("deal");
   lastSoundSnapshot=snapshot;
