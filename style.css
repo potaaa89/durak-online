@@ -225,7 +225,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 @media(max-width:420px){.modal{padding:14px}.modal-card{padding:26px 20px 20px}.modal-card h2{font-size:30px}}
 /* Custom Dark Fantasy card back based on the player's reference image */
 .back-mini,.deck-stack{
-  background-image:url('card-back.webp')!important;
+  background-image:url('card-back.webp?v=875030d8ad')!important;
   background-size:cover!important;
   background-position:center!important;
   background-repeat:no-repeat!important;
