@@ -159,16 +159,18 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .my-hand{
     justify-content:center;
     align-items:flex-end;
-    min-height:116px;
-    padding:5px 16px 4px;
+    min-height:132px;
+    padding:8px 14px 6px;
     overflow-x:auto;
     overflow-y:visible;
   }
   .my-hand .card{
-    width:49px;
-    height:73px;
-    margin-left:-19px;
+    width:57px;
+    height:85px;
+    margin-left:-21px;
   }
+  .my-hand .card .corner{font-size:12px}
+  .my-hand .card .suit{font-size:30px}
   .my-hand .card:first-child{margin-left:0}
   .my-hand .card:nth-child(n){
     transform:rotate(var(--fan-angle,0deg)) translateY(calc(var(--fan-lift,0px) - 10px));
