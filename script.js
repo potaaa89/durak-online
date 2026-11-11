@@ -160,8 +160,8 @@ function render(){
   $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c))).join("");
   const handCards=$("myHand").querySelectorAll(".card");
   handCards.forEach((el,i)=>{
-    const count=handCards.length,angle=count>1?(i-(count-1)/2)*Math.min(9,42/(count-1)):0;
-    const lift=Math.abs(angle)*.62;
+    const count=handCards.length,angle=count>1?(i-(count-1)/2)*Math.min(13,65/(count-1)):0;
+    const lift=Math.abs(angle)*.45;
     el.style.setProperty("--fan-angle",angle+"deg");
     el.style.setProperty("--fan-lift",lift+"px");
     el.addEventListener("click",()=>onCardTap(el.dataset.card));
