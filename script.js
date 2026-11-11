@@ -203,7 +203,7 @@ function render(){
   if(!g.finished)hideResult();
   if(g.finished){
     const key=`${g.winner}-${g.loser}-${g.round}`;
-    if(lastResultKey!==key){lastResultKey=key;const title=g.winner===null?"Ничья":g.winner===mySeat?"Вы победили!":"Победил соперник";showResult(title,g.winner===null?"Оба игрока закончили карты одновременно.":g.winner===mySeat?"Поздравляем!":"В этот раз победил соперник.")}
+    if(lastResultKey!==key){lastResultKey=key;const type=g.winner===null?"draw":g.winner===mySeat?"win":"loss";const title=type==="win"?"Победа!":type==="loss"?"Поражение":"Ничья";const body=type==="win"?"Отличная игра! Вы избавились от всех карт первым.":type==="loss"?"Партия завершена. В следующий раз удача может быть на вашей стороне!":"Оба игрока закончили карты одновременно.";showResult(title,body,type)}
   }
 }
 function onCardTap(id){
@@ -215,7 +215,7 @@ function onCardTap(id){
   if(!hand.some(c=>cardId(c)===id))return;
   sendAction("PLAY",{id});selected=null;
 }
-function showResult(title,body){$("modalTitle").textContent=title;$("modalText").textContent=body;$("modal").classList.remove("hidden")}
+function showResult(title,body,type="draw"){$("modalTitle").textContent=title;$("modalText").textContent=body;const card=$("modal").querySelector(".modal-card");card.classList.remove("result-win","result-loss","result-draw");card.classList.add("result-"+type);$("modalIcon").textContent=type==="win"?"🏆":type==="loss"?"♠":"🤝";$("modalStatus").textContent=type==="win"?"Вы выиграли партию":type==="loss"?"Победитель — соперник":"Партия завершилась вничью";$("modal").classList.remove("hidden")}
 function hideResult(){$("modal").classList.add("hidden")}
 async function requestMedia(){
   if(!navigator.mediaDevices?.getUserMedia){toast("Камера недоступна. Открой сайт по HTTPS в современном браузере.");return}
