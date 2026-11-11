@@ -85,7 +85,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}
 }
 .battle-pair{animation:cardArrive .28s cubic-bezier(.2,.8,.2,1) both}
-.my-hand .card{animation:cardArrive .24s ease-out both}
+.my-hand .card{animation:cardFadeIn .24s ease-out both}
 .my-hand .card:nth-child(2){animation-delay:.025s}
 .my-hand .card:nth-child(3){animation-delay:.05s}
 .my-hand .card:nth-child(4){animation-delay:.075s}
@@ -159,3 +159,5 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .my-hand .card{margin-left:-23px}
   .my-hand .card:nth-child(n){transform:rotate(var(--fan-angle,0deg)) translateY(var(--fan-lift,0px))}
 }
+
+@keyframes cardFadeIn{from{opacity:0}to{opacity:1}}
