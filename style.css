@@ -201,3 +201,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   75%{opacity:1;translate:0 3px;scale:1.02}
   100%{opacity:1;translate:0 0;scale:1}
 }
+
+
+/* Card motion is driven by Web Animations API */
+.my-hand .card,.battle-pair,.battle-pair .card{animation:none!important}
