@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#082b20">
+  <title>Подкидной дурак — онлайн</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Подкидной дурак">
+        <span class="brand-mark">♠</span>
+        <span><b>ДУРАК</b><small>ОНЛАЙН · 36 КАРТ</small></span>
+      </a>
+      <div class="connection"><i id="connectionDot" class="dot"></i><span id="connectionText">Не подключено</span></div>
+    </header>
+
+    <section id="lobby" class="lobby panel">
+      <div class="hero">
+        <div class="hero-suits">♠ ♥ ♦ ♣</div>
+        <p class="eyebrow">КЛАССИЧЕСКАЯ ИГРА НА ДВОИХ</p>
+        <h1>Подкидной<br><em>дурак</em></h1>
+        <p class="muted">Играй с другом онлайн. Карточный стол, видеосвязь и голосовой чат — прямо в браузере.</p>
+      </div>
+      <div class="lobby-grid">
+        <article class="lobby-card">
+          <h2>Создать комнату</h2>
+          <p>Ты будешь первым игроком. Отправь другу код комнаты.</p>
+          <button id="createRoom" class="primary wide">Создать игру</button>
+          <div id="hostRoomInfo" class="room-info hidden">
+            <span>КОД КОМНАТЫ</span><strong id="hostRoomCode">—</strong>
+            <button id="copyInvite" class="secondary wide">Скопировать приглашение</button>
+            <small>Оставь эту страницу открытой, пока играете.</small>
+          </div>
+        </article>
+        <article class="lobby-card">
+          <h2>Подключиться</h2>
+          <p>Введи код, который прислал создатель комнаты.</p>
+          <label for="roomInput">КОД КОМНАТЫ</label>
+          <input id="roomInput" maxlength="80" autocomplete="off" placeholder="Например, durak-a1b2c3">
+          <button id="joinRoom" class="primary wide">Подключиться</button>
+        </article>
+      </div>
+      <p id="lobbyStatus" class="status-line" aria-live="polite">Создай комнату или подключись к другу.</p>
+      <p class="footnote">Для камеры и микрофона нужен HTTPS и разрешение браузера. Играть можно и без камеры.</p>
+    </section>
+
+    <section id="game" class="game hidden">
+      <header class="gamebar">
+        <div class="player-chip"><span class="avatar">♟</span><span><b id="opponentName">Соперник</b><small id="opponentCount">Ожидание игрока</small></span></div>
+        <div class="room-chip"><small>КОМНАТА</small><b id="roomCodeSmall">—</b></div>
+        <button id="leaveGame" class="icon-btn" title="Выйти из игры">Выход</button>
+      </header>
+
+      <div class="table">
+        <div class="video-dock" id="videoDock">
+          <div class="video-box remote-box">
+            <video id="remoteVideo" autoplay playsinline></video>
+            <div id="remotePlaceholder" class="video-placeholder"><span>♟</span><small>Видео соперника</small></div>
+            <b>СОПЕРНИК</b>
+          </div>
+          <div class="video-box self-box">
+            <video id="localVideo" autoplay muted playsinline></video>
+            <div id="localPlaceholder" class="video-placeholder"><small>Вы</small></div>
+            <b>ВЫ</b>
+          </div>
+        </div>
+
+        <div class="table-content">
+          <div class="opponent-hand-wrap">
+            <div class="opponent-label"><span class="avatar tiny">♟</span><span><b id="opponentLabel">Соперник</b><small id="opponentCards">0 карт</small></span></div>
+            <div id="opponentHand" class="opponent-hand"></div>
+          </div>
+
+          <div class="play-zone">
+            <div class="side-card">
+              <small>КОЗЫРЬ</small>
+              <div id="trumpCard" class="trump-card">—</div>
+            </div>
+            <div class="battlefield" id="battlefield"><div class="empty-table">Карточный стол</div></div>
+            <div class="side-card deck-side">
+              <small>КОЛОДА</small>
+              <div class="deck-stack"><span id="deckCount">36</span></div>
+            </div>
+          </div>
+
+          <div id="turnMessage" class="turn-message">Ожидание второго игрока…</div>
+          <div class="actions">
+            <button id="takeBtn" class="action-btn take" disabled>↙ Беру</button>
+            <button id="beatBtn" class="action-btn beat" disabled>✓ Бито</button>
+          </div>
+        </div>
+      </div>
+
+      <section class="hand-section">
+        <div class="hand-heading"><b>ВАШИ КАРТЫ</b><span id="myCount">0 карт</span></div>
+        <div id="myHand" class="my-hand"></div>
+      </section>
+
+      <footer class="game-footer">
+        <div class="media-controls">
+          <button id="micBtn" class="media-btn" disabled>🎙 <span>Микрофон</span></button>
+          <button id="camBtn" class="media-btn" disabled>▣ <span>Камера</span></button>
+          <button id="videoToggle" class="media-btn">▣ <span>Свернуть видео</span></button>
+        </div>
+        <p id="gameHint">Подключи второго игрока, чтобы начать.</p>
+        <button id="rematchBtn" class="secondary hidden">Сыграть ещё раз</button>
+      </footer>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon">♠</div><h2 id="modalTitle">Игра окончена</h2><p id="modalText"></p>
+      <button id="modalRematch" class="primary wide">Сыграть ещё раз</button>
+      <button id="modalClose" class="secondary wide">Закрыть</button>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="script.js"></script>
+</body>
+</html>
