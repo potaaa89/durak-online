@@ -17,20 +17,26 @@ function stopMusic(){
   musicEnabled=false;
   if(musicTimer){clearTimeout(musicTimer);musicTimer=null}
   const now=audioContext?.currentTime||0;
-  musicVoices.forEach(v=>{try{v.gain.cancelScheduledValues(now);v.gain.setTargetAtTime(0,now,.08);v.osc.stop(now+.5)}catch{}});
+  musicVoices.forEach(v=>{
+    try{
+      v.gain.gain.cancelScheduledValues(now);
+      v.gain.gain.setTargetAtTime(0,now,.04);
+      v.osc.stop(now+.2);
+    }catch{}
+  });
   musicVoices=[];
-  if(musicMaster&&audioContext){musicMaster.gain.setTargetAtTime(0,now,.08)}
+  if(musicMaster&&audioContext)musicMaster.gain.setTargetAtTime(0,now,.06);
   updateMusicButton();
 }
 function updateMusicButton(){
   const b=$("musicToggle");if(!b)return;
   b.classList.toggle("off",!musicEnabled);
-  b.querySelector("span").textContent=musicEnabled?"Музыка Вкл.":"Музыка Выкл.";
+  const label=b.querySelector("span");
+  if(label)label.textContent=musicEnabled?"Музыка Вкл.":"Музыка Выкл.";
   b.setAttribute("aria-pressed",String(musicEnabled));
 }
 function playAmbientMelody(){
   if(!musicEnabled||!audioContext||audioContext.state!=="running")return;
-  // Небольшая оригинальная lounge-мелодия: мягкое пианино-подобное арпеджио.
   const phrases=[
     [392,493.88,587.33,493.88,440,523.25,659.25,523.25],
     [349.23,440,523.25,440,392,493.88,587.33,493.88],
@@ -42,48 +48,50 @@ function playAmbientMelody(){
   phrase.forEach((freq,i)=>{
     const start=now+i*.48;
     const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
-    osc.type="sine";osc.frequency.setValueAtTime(freq,start);
-    filter.type="lowpass";filter.frequency.value=1700;
+    osc.type="triangle";osc.frequency.setValueAtTime(freq,start);
+    filter.type="lowpass";filter.frequency.value=2400;
     gain.gain.setValueAtTime(.0001,start);
-    gain.gain.exponentialRampToValueAtTime(.22,start+.025);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.43);
+    gain.gain.exponentialRampToValueAtTime(.62,start+.025);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.44);
     osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
-    osc.start(start);osc.stop(start+.46);
+    osc.start(start);osc.stop(start+.47);
     musicVoices.push({osc,gain});
   });
-  // Тихая басовая нота поддерживает ритм, не заглушая карты и разговор.
   const bass=audioContext.createOscillator(),bassGain=audioContext.createGain();
-  bass.type="triangle";bass.frequency.value=[98,87.31,82.41,73.42][Math.floor(Date.now()/16000)%4];
+  bass.type="sine";bass.frequency.value=[98,87.31,82.41,73.42][Math.floor(Date.now()/16000)%4];
   bassGain.gain.setValueAtTime(.0001,now);
-  bassGain.gain.exponentialRampToValueAtTime(.075,now+.08);
+  bassGain.gain.exponentialRampToValueAtTime(.18,now+.08);
   bassGain.gain.exponentialRampToValueAtTime(.0001,now+3.7);
   bass.connect(bassGain);bassGain.connect(musicMaster);bass.start(now);bass.stop(now+3.8);
-  musicVoices.push({osc:bass,gain:bassGain});
   musicTimer=setTimeout(()=>{
-    const t=audioContext?.currentTime||0;
-    musicVoices=musicVoices.filter(v=>t< v.osc?._stopTime);
+    musicVoices=[];
     playAmbientMelody();
-  },4200);
+  },3900);
 }
 async function startMusic(){
-  unlockAudio();
-  if(!audioContext)return;
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
+  if(!audioContext){toast("Ваш браузер не поддерживает аудио");return}
   if(!musicMaster){musicMaster=audioContext.createGain();musicMaster.gain.value=0;musicMaster.connect(audioContext.destination)}
-  musicEnabled=true;
-  updateMusicButton();
   try{
     await audioContext.resume();
-    const volume=Number($("musicVolume")?.value??18)/100;
+    if(audioContext.state!=="running"){toast("Разрешите звук в браузере и нажмите ещё раз");return}
+    musicEnabled=true;
+    updateMusicButton();
+    const volume=Number($("musicVolume")?.value??55)/100;
     musicMaster.gain.cancelScheduledValues(audioContext.currentTime);
-    musicMaster.gain.setTargetAtTime(volume*.75,audioContext.currentTime,.15);
+    musicMaster.gain.setTargetAtTime(volume*.95,audioContext.currentTime,.08);
     if(musicTimer)clearTimeout(musicTimer);
     musicVoices=[];
     playAmbientMelody();
-  }catch(e){musicEnabled=false;updateMusicButton();toast("Браузер не разрешил воспроизведение музыки");}
+  }catch(e){
+    musicEnabled=false;updateMusicButton();
+    toast("Не удалось включить музыку. Проверьте звук браузера.");
+  }
 }
 function setMusicVolume(value){
   if(!musicMaster||!audioContext)return;
-  musicMaster.gain.setTargetAtTime(Number(value)/100*.75,audioContext.currentTime,.08);
+  musicMaster.gain.setTargetAtTime(Number(value)/100*.95,audioContext.currentTime,.06);
 }
 function playSfx(kind){
   if(!soundEnabled||!audioContext||audioContext.state!=="running")return;
