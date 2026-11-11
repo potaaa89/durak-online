@@ -74,6 +74,7 @@ function sendState(){if(!host)return;if(conn&&conn.open)conn.send(snapshotFor(1)
 function sendToGuest(obj){if(conn&&conn.open)conn.send(obj)}
 function parseCard(id){return {rank:id.slice(0,-1),suit:id.slice(-1)}}
 function decodeState(msg){
+  showGame();
   const ids=[...msg.hand,...msg.table.flatMap(p=>[p.attack,p.defense].filter(Boolean))];
   const lookup=new Map(ids.map(id=>[id,parseCard(id)]));
   myHand=msg.hand.map(id=>lookup.get(id));
@@ -258,20 +259,42 @@ function createRoom(){
 function joinRoom(code){
   closeConnections();host=false;seat=1;roomId=String(code).replace(/\D/g,"").slice(0,4);
   if(!/^\d{4}$/.test(roomId)){toast("Введи 4 цифры кода комнаты");return}
-  say("Подключаемся…");peer=new Peer(undefined,{debug:0});
+  const joinButton=$("joinRoom");
+  joinButton.disabled=true;
+  say("Подключаемся к серверу…");
+  let settled=false,peerTimer=null,connTimer=null;
+  const failJoin=message=>{
+    if(settled)return;
+    settled=true;clearTimeout(peerTimer);clearTimeout(connTimer);
+    closeConnections();joinButton.disabled=false;
+    say(message);toast(message);
+  };
+  peer=new Peer(undefined,{debug:0});
+  peerTimer=setTimeout(()=>failJoin("Сервер не ответил. Проверь интернет и попробуй ещё раз."),15000);
   peer.on("open",()=>{
+    clearTimeout(peerTimer);
+    say("Сервер доступен. Подключаемся к комнате…");
     conn=peer.connect(roomId,{reliable:true});
-    conn.on("open",()=>{connection(true,"Подключено");$("opponentName").textContent="Хост";$("opponentLabel").textContent="Хост";say("Подключено к комнате.");});
+    connTimer=setTimeout(()=>failJoin("Не удалось подключиться к комнате. Проверь код и попробуй снова."),15000);
+    conn.on("open",()=>{
+      clearTimeout(connTimer);settled=true;
+      connection(true,"Подключено");
+      $("opponentName").textContent="Хост";$("opponentLabel").textContent="Хост";
+      say("Связь установлена. Загружаем игру…");
+      joinButton.disabled=false;
+    });
     conn.on("data",msg=>{if(msg?.kind==="STATE"){decodeState(msg);say("Игра синхронизирована.")}});
-    conn.on("close",()=>{connection(false,"Соединение потеряно");toast("Связь с хостом потеряна. Вернись в лобби и подключись снова.")});
-    conn.on("error",e=>toast("Ошибка соединения: "+e.message));
+    conn.on("close",()=>{
+      if(!settled){failJoin("Комната закрыта или соединение отклонено.");return}
+      connection(false,"Соединение потеряно");toast("Связь с хостом потеряна. Вернись в лобби и подключись снова.");
+    });
+    conn.on("error",e=>failJoin("Ошибка подключения: "+(e?.message||"попробуй ещё раз")));
   });
   peer.on("call",incoming=>{
     if(!localStream){incoming.answer();mediaCall=incoming;incoming.on("stream",showRemote);return}
     mediaCall=incoming;incoming.answer(localStream);incoming.on("stream",showRemote);
   });
-  peer.on("error",e=>{say("Не удалось подключиться: "+e.message);toast("PeerJS: "+e.type)});
-  showGame();
+  peer.on("error",e=>failJoin("Ошибка сервера: "+(e?.type||e?.message||"не удалось подключиться")));
   requestMedia();
 }
 document.addEventListener("pointerdown",unlockAudio,{once:true});\n$("createRoom").addEventListener("click",createRoom);
