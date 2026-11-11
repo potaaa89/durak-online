@@ -17,9 +17,9 @@ function stopMusic(){
   musicEnabled=false;
   if(musicTimer){clearTimeout(musicTimer);musicTimer=null}
   const now=audioContext?.currentTime||0;
-  musicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(now);v.gain.gain.setTargetAtTime(0,now,.35);v.osc.stop(now+1.5)}catch{}});
+  musicVoices.forEach(v=>{try{v.gain.cancelScheduledValues(now);v.gain.setTargetAtTime(0,now,.08);v.osc.stop(now+.5)}catch{}});
   musicVoices=[];
-  if(musicMaster){try{musicMaster.gain.setTargetAtTime(0,now,.25)}catch{}}
+  if(musicMaster&&audioContext){musicMaster.gain.setTargetAtTime(0,now,.08)}
   updateMusicButton();
 }
 function updateMusicButton(){
@@ -28,36 +28,62 @@ function updateMusicButton(){
   b.querySelector("span").textContent=musicEnabled?"Музыка Вкл.":"Музыка Выкл.";
   b.setAttribute("aria-pressed",String(musicEnabled));
 }
-function playAmbientChord(){
+function playAmbientMelody(){
   if(!musicEnabled||!audioContext||audioContext.state!=="running")return;
-  const chords=[[196,246.94,293.66,369.99],[174.61,220,261.63,329.63],[146.83,185,220,293.66],[164.81,207.65,246.94,311.13]];
-  const chord=chords[Math.floor(Date.now()/12000)%chords.length],now=audioContext.currentTime;
-  musicVoices.forEach(v=>{try{v.gain.gain.setTargetAtTime(0,now,.5);v.osc.stop(now+2)}catch{}});
-  musicVoices=[];
-  chord.forEach((freq,i)=>{
+  // Небольшая оригинальная lounge-мелодия: мягкое пианино-подобное арпеджио.
+  const phrases=[
+    [392,493.88,587.33,493.88,440,523.25,659.25,523.25],
+    [349.23,440,523.25,440,392,493.88,587.33,493.88],
+    [329.63,392,493.88,392,349.23,440,523.25,440],
+    [293.66,369.99,440,369.99,329.63,392,493.88,392]
+  ];
+  const phrase=phrases[Math.floor(Date.now()/16000)%phrases.length];
+  const now=audioContext.currentTime;
+  phrase.forEach((freq,i)=>{
+    const start=now+i*.48;
     const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
-    osc.type=i===0?"triangle":"sine";osc.frequency.setValueAtTime(freq,now);
-    filter.type="lowpass";filter.frequency.value=850;
-    gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(i===0?.12:.055,now+2.2);
-    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);osc.start(now);osc.stop(now+13);
+    osc.type="sine";osc.frequency.setValueAtTime(freq,start);
+    filter.type="lowpass";filter.frequency.value=1700;
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.exponentialRampToValueAtTime(.22,start+.025);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.43);
+    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
+    osc.start(start);osc.stop(start+.46);
     musicVoices.push({osc,gain});
   });
-  musicTimer=setTimeout(playAmbientChord,11500);
+  // Тихая басовая нота поддерживает ритм, не заглушая карты и разговор.
+  const bass=audioContext.createOscillator(),bassGain=audioContext.createGain();
+  bass.type="triangle";bass.frequency.value=[98,87.31,82.41,73.42][Math.floor(Date.now()/16000)%4];
+  bassGain.gain.setValueAtTime(.0001,now);
+  bassGain.gain.exponentialRampToValueAtTime(.075,now+.08);
+  bassGain.gain.exponentialRampToValueAtTime(.0001,now+3.7);
+  bass.connect(bassGain);bassGain.connect(musicMaster);bass.start(now);bass.stop(now+3.8);
+  musicVoices.push({osc:bass,gain:bassGain});
+  musicTimer=setTimeout(()=>{
+    const t=audioContext?.currentTime||0;
+    musicVoices=musicVoices.filter(v=>t< v.osc?._stopTime);
+    playAmbientMelody();
+  },4200);
 }
-function startMusic(){
+async function startMusic(){
   unlockAudio();
   if(!audioContext)return;
-  if(audioContext.state!=="running"){audioContext.resume().then(()=>{if(musicEnabled)playAmbientChord()}).catch(()=>{});}
-  musicEnabled=true;
   if(!musicMaster){musicMaster=audioContext.createGain();musicMaster.gain.value=0;musicMaster.connect(audioContext.destination)}
-  const volume=Number($("musicVolume")?.value??18)/100;
-  musicMaster.gain.setTargetAtTime(volume*.22,audioContext.currentTime,.5);
+  musicEnabled=true;
   updateMusicButton();
-  if(audioContext.state==="running")playAmbientChord();
+  try{
+    await audioContext.resume();
+    const volume=Number($("musicVolume")?.value??18)/100;
+    musicMaster.gain.cancelScheduledValues(audioContext.currentTime);
+    musicMaster.gain.setTargetAtTime(volume*.75,audioContext.currentTime,.15);
+    if(musicTimer)clearTimeout(musicTimer);
+    musicVoices=[];
+    playAmbientMelody();
+  }catch(e){musicEnabled=false;updateMusicButton();toast("Браузер не разрешил воспроизведение музыки");}
 }
 function setMusicVolume(value){
   if(!musicMaster||!audioContext)return;
-  musicMaster.gain.setTargetAtTime(Number(value)/100*.22,audioContext.currentTime,.12);
+  musicMaster.gain.setTargetAtTime(Number(value)/100*.75,audioContext.currentTime,.08);
 }
 function playSfx(kind){
   if(!soundEnabled||!audioContext||audioContext.state!=="running")return;
