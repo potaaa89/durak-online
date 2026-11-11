@@ -21,7 +21,8 @@ function newGame(){
   const deck=shuffle(buildDeck());
   const hands=[[],[]];
   for(let n=0;n<6;n++){hands[0].push(deck.pop());hands[1].push(deck.pop())}
-  const trump=deck[deck.length-1].suit;
+  // Индекс 0 — нижняя карта колоды: козырь остаётся под колодой и добирается последним.
+  const trump=deck[0].suit;
   const t0=smallestTrump(hands[0],trump),t1=smallestTrump(hands[1],trump);
   let attacker=0;
   if(t0&&t1)attacker=RV[t1.rank]<RV[t0.rank]?1:0;
@@ -52,7 +53,13 @@ function validAttack(player,c){
   return ranks.has(c.rank);
 }
 function applyAction(player,action,data){
-  if(!host||!state||state.finished)return;
+  if(!host||!state)return;
+  // Повторная партия разрешена только после завершения текущей.
+  if(action==="REMATCH"){
+    if(!state.finished)return;
+    state=newGame();lastResultKey="";hideResult();publish();return;
+  }
+  if(state.finished)return;
   const g=state,hand=g.hands[player];
   if(action==="PLAY"){
     const index=hand.findIndex(c=>cardId(c)===data.id);if(index<0)return;
@@ -73,8 +80,6 @@ function applyAction(player,action,data){
     if(player!==g.attacker||g.turn!==player||g.phase!=="attack"||!g.table.length||g.table.some(p=>!p.defense))return;
     const oldAttacker=g.attacker;
     g.table=[];g.attacker=g.defender;g.defender=oldAttacker;g.turn=g.attacker;g.phase="attack";finishRound();
-   }else if(action==="REMATCH"){
-    state=newGame();lastResultKey="";publish();
   }
 }
 function finishRound(){
