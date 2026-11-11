@@ -423,3 +423,63 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .court-portrait i{font-size:8px}
   .card.face-q .court-symbol,.card.face-k .court-symbol{font-size:28px}
 }
+
+
+/* Table atmosphere: richer emerald felt, warm casino lighting and carved wood rim */
+.table{
+  border-color:#49311f;
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(79,163,111,.22) 0%,transparent 56%),
+    radial-gradient(ellipse at 50% -8%,rgba(224,190,111,.12),transparent 48%),
+    repeating-linear-gradient(22deg,rgba(255,255,255,.014) 0 1px,transparent 1px 5px),
+    repeating-linear-gradient(112deg,rgba(0,0,0,.018) 0 1px,transparent 1px 7px),
+    radial-gradient(ellipse at center,#185b40 0%,#104a34 53%,#073322 100%);
+  box-shadow:
+    inset 0 0 0 2px #d0ad67,
+    inset 0 0 0 5px #49311f,
+    inset 0 0 0 7px #a77e43,
+    inset 0 0 95px #00170f,
+    0 18px 42px #0009;
+}
+.table:before{
+  inset:13px;
+  border:1px solid rgba(231,202,139,.36);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 0 22px rgba(0,0,0,.08);
+}
+.table-content:after{
+  content:"";
+  position:absolute;
+  inset:5% 8%;
+  pointer-events:none;
+  z-index:-1;
+  opacity:.36;
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(213,183,112,.10),transparent 65%),
+    radial-gradient(ellipse at 50% 100%,rgba(0,0,0,.13),transparent 62%);
+}
+.play-zone{filter:drop-shadow(0 4px 8px rgba(0,0,0,.10))}
+.side-card>small{
+  color:#e8d39d;
+  text-shadow:0 1px 5px rgba(0,0,0,.5);
+}
+.trump-card{
+  border:1px solid #c6a363;
+  box-shadow:0 5px 12px #0007,inset 0 0 0 2px #fff8,inset 0 0 12px #b08a4b33;
+}
+.deck-stack{
+  border-color:#d6bb7b;
+  box-shadow:3px 3px 0 #d6bb7b,6px 6px 0 #49311f,0 9px 14px #0008;
+}
+.battlefield{
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.12));
+}
+.empty-table{
+  color:rgba(224,215,185,.36);
+  text-shadow:0 1px 3px #00170f;
+}
+@media(max-width:760px){
+  .table{
+    box-shadow:inset 0 0 0 1px #d0ad67,inset 0 0 0 4px #49311f,inset 0 0 0 5px #a77e43,inset 0 0 65px #00170f,0 12px 25px #0008;
+  }
+  .table:before{inset:8px}
+}
