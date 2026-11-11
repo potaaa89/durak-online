@@ -7,109 +7,10 @@ let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
 let audioContext=null,lastSoundSnapshot=null,soundEnabled=true,previousHandIds=new Set(),previousTableIds=new Set();
-let musicEnabled=false,musicMaster=null,musicTimer=null,musicVoices=[];
 function unlockAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
   if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
-}
-function stopMusic(){
-  musicEnabled=false;
-  if(musicTimer){clearTimeout(musicTimer);musicTimer=null}
-  const now=audioContext?.currentTime||0;
-  musicVoices.forEach(v=>{
-    try{
-      v.gain.gain.cancelScheduledValues(now);
-      v.gain.gain.setTargetAtTime(0,now,.04);
-      v.osc.stop(now+.2);
-    }catch{}
-  });
-  musicVoices=[];
-  if(musicMaster&&audioContext)musicMaster.gain.setTargetAtTime(0,now,.06);
-  updateMusicButton();
-}
-function updateMusicButton(){
-  const b=$("musicToggle");if(!b)return;
-  b.classList.toggle("off",!musicEnabled);
-  const label=b.querySelector("span");
-  if(label)label.textContent=musicEnabled?"Музыка Вкл.":"Музыка Выкл.";
-  b.setAttribute("aria-pressed",String(musicEnabled));
-}
-function playAmbientMelody(){
-  if(!musicEnabled||!audioContext||audioContext.state!=="running")return;
-  // Авторский спокойный lounge-jazz: мягкие Rhodes-аккорды, контрабас и неторопливая фраза.
-  const bars=[
-    {chord:[146.83,174.61,220,261.63,329.63],bass:[73.42,110,130.81,110],lead:[440,523.25,587.33,523.25]},
-    {chord:[146.83,174.61,207.65,246.94,329.63],bass:[98,146.83,164.81,146.83],lead:[493.88,587.33,659.25,587.33]},
-    {chord:[130.81,164.81,196,246.94,293.66],bass:[65.41,98,123.47,98],lead:[392,493.88,587.33,493.88]},
-    {chord:[110,138.59,164.81,207.65,261.63],bass:[73.42,110,138.59,110],lead:[415.3,493.88,554.37,493.88]}
-  ];
-  const bar=bars[Math.floor(Date.now()/3900)%bars.length];
-  const now=audioContext.currentTime;
-  // Тёплый протяжный аккорд, похожий на электрическое пианино.
-  bar.chord.forEach((freq,i)=>{
-    const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
-    osc.type=i===0?"sine":"triangle";osc.frequency.setValueAtTime(freq,now);
-    filter.type="lowpass";filter.frequency.value=1050;
-    gain.gain.setValueAtTime(.0001,now);
-    gain.gain.exponentialRampToValueAtTime(i===0?.12:.075,now+.32);
-    gain.gain.setValueAtTime(i===0?.12:.075,now+3.15);
-    gain.gain.exponentialRampToValueAtTime(.0001,now+3.85);
-    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
-    osc.start(now);osc.stop(now+3.9);musicVoices.push({osc,gain});
-  });
-  // Ненавязчивая синкопированная мелодия.
-  bar.lead.forEach((freq,i)=>{
-    const start=now+.18+i*.88+(i%2?.12:0);
-    const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
-    osc.type="sine";osc.frequency.setValueAtTime(freq,start);
-    filter.type="lowpass";filter.frequency.value=1800;
-    gain.gain.setValueAtTime(.0001,start);
-    gain.gain.exponentialRampToValueAtTime(.22,start+.045);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.72);
-    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);
-    osc.start(start);osc.stop(start+.75);musicVoices.push({osc,gain});
-  });
-  // Мягкий walking bass в четыре доли.
-  bar.bass.forEach((freq,i)=>{
-    const start=now+i*.94;
-    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-    osc.type="triangle";osc.frequency.setValueAtTime(freq,start);
-    gain.gain.setValueAtTime(.0001,start);
-    gain.gain.exponentialRampToValueAtTime(.16,start+.035);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.72);
-    osc.connect(gain);gain.connect(musicMaster);
-    osc.start(start);osc.stop(start+.76);musicVoices.push({osc,gain});
-  });
-  musicTimer=setTimeout(()=>{
-    musicVoices=[];
-    playAmbientMelody();
-  },3900);
-}
-async function startMusic(){
-  const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
-  if(!audioContext){toast("Ваш браузер не поддерживает аудио");return}
-  if(!musicMaster){musicMaster=audioContext.createGain();musicMaster.gain.value=0;musicMaster.connect(audioContext.destination)}
-  try{
-    await audioContext.resume();
-    if(audioContext.state!=="running"){toast("Разрешите звук в браузере и нажмите ещё раз");return}
-    musicEnabled=true;
-    updateMusicButton();
-    const volume=Number($("musicVolume")?.value??55)/100;
-    musicMaster.gain.cancelScheduledValues(audioContext.currentTime);
-    musicMaster.gain.setTargetAtTime(volume*.95,audioContext.currentTime,.08);
-    if(musicTimer)clearTimeout(musicTimer);
-    musicVoices=[];
-    playAmbientMelody();
-  }catch(e){
-    musicEnabled=false;updateMusicButton();
-    toast("Не удалось включить музыку. Проверьте звук браузера.");
-  }
-}
-function setMusicVolume(value){
-  if(!musicMaster||!audioContext)return;
-  musicMaster.gain.setTargetAtTime(Number(value)/100*.95,audioContext.currentTime,.06);
 }
 function playSfx(kind){
   if(!soundEnabled||!audioContext||audioContext.state!=="running")return;
@@ -459,10 +360,6 @@ $("soundToggle").addEventListener("click",()=>{
   $("soundToggle").querySelector("span").textContent=soundEnabled?"Звук Вкл.":"Звук Выкл.";
   if(soundEnabled){unlockAudio();playSfx("card")}
 });
-$("musicToggle").addEventListener("click",()=>{
-  if(musicEnabled)stopMusic();else startMusic();
-});
-$("musicVolume").addEventListener("input",e=>setMusicVolume(e.target.value));
 $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
   $("videoToggle").querySelector("span").textContent=videoCollapsed?"Показать видео":"Свернуть видео";
