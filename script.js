@@ -64,7 +64,7 @@ function say(msg){$("lobbyStatus").textContent=msg}
 function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2600)}
 function connection(ok,label){$("connectionDot").classList.toggle("online",ok);$("connectionText").textContent=label}
 function showGame(){ $("lobby").classList.add("hidden");$("game").classList.remove("hidden");$("roomCodeSmall").textContent=roomId}
-function cardMarkup(c,selectedCard=false,extra=""){return `<div class="card ${isRed(c)?"red":""} ${selectedCard?"selected":""} ${extra}" data-card="${cardId(c)}"><span class="corner">${c.rank}<br>${c.suit}</span><span class="suit">${c.suit}</span><span class="corner bottom">${c.rank}<br>${c.suit}</span></div>`}
+function cardMarkup(c,selectedCard=false,extra=""){const face={J:["face-j","⚔","ВАЛЕТ"],Q:["face-q","♛","ДАМА"],K:["face-k","♚","КОРОЛЬ"]}[c.rank];return `<div class="card ${isRed(c)?"red":""} ${selectedCard?"selected":""} ${face?face[0]:""} ${extra}" data-card="${cardId(c)}"><span class="corner">${c.rank}<br>${c.suit}</span>${face?`<span class="court-portrait"><span class="court-symbol">${face[1]}</span><small>${face[2]}</small><i>${c.suit}</i></span>`:`<span class="suit">${c.suit}</span>`}<span class="corner bottom">${c.rank}<br>${c.suit}</span></div>`}
 function beats(attack,defense,trump){if(attack.suit===defense.suit)return RV[defense.rank]>RV[attack.rank];return defense.suit===trump&&attack.suit!==trump}
 function smallestTrump(hand,trump){return hand.filter(c=>c.suit===trump).sort((a,b)=>RV[a.rank]-RV[b.rank])[0]||null}
 function newGame(){
