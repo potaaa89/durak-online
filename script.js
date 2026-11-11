@@ -6,16 +6,38 @@ const RV = Object.fromEntries(RANKS.map((r,i)=>[r,i]));
 let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
-let audioContext=null,lastSoundSnapshot=null;
+let audioContext=null,lastSoundSnapshot=null,soundEnabled=true;
 function unlockAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
   if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
 }
 function playSfx(kind){
-  if(!audioContext||audioContext.state!=="running")return;
+  if(!soundEnabled||!audioContext||audioContext.state!=="running")return;
   const now=audioContext.currentTime;
-  const notes=kind==="deal"?[440,554,659]:kind==="take"?[330,247]:kind==="beat"?[660,880]:kind==="win"?[523,659,784,1047]:[620,740];
+  // Короткий шорох бумаги/картона с мягким щелчком вместо электронного сигнала.
+  const duration=kind==="deal"?.19:kind==="take"?.34:.16;
+  const length=Math.floor(audioContext.sampleRate*duration);
+  const buffer=audioContext.createBuffer(1,length,audioContext.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<length;i++){
+    const fade=1-i/length;
+    data[i]=(Math.random()*2-1)*fade*(kind==="take"?.55:.34);
+  }
+  const noise=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),noiseGain=audioContext.createGain();
+  noise.buffer=buffer;filter.type="lowpass";filter.frequency.setValueAtTime(kind==="take"?1500:kind==="deal"?2400:3200,now);
+  noiseGain.gain.setValueAtTime(.0001,now);
+  noiseGain.gain.exponentialRampToValueAtTime(kind==="take"?.12:.075,now+.018);
+  noiseGain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+  noise.connect(filter);filter.connect(noiseGain);noiseGain.connect(audioContext.destination);noise.start(now);noise.stop(now+duration);
+  if(kind==="card"||kind==="beat"||kind==="take"){
+    const thump=audioContext.createOscillator(),thumpGain=audioContext.createGain();
+    thump.type="sine";thump.frequency.setValueAtTime(kind==="take"?115:kind==="beat"?175:145,now);
+    thumpGain.gain.setValueAtTime(.0001,now);thumpGain.gain.exponentialRampToValueAtTime(kind==="take"?.055:.035,now+.008);
+    thumpGain.gain.exponentialRampToValueAtTime(.0001,now+.085);
+    thump.connect(thumpGain);thumpGain.connect(audioContext.destination);thump.start(now);thump.stop(now+.09);
+  }
+  if(kind==="win"){const notes=[523,659,784,1047];notes.forEach((freq,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type="sine";osc.frequency.setValueAtTime(freq,now+i*.13);gain.gain.setValueAtTime(.0001,now+i*.13);gain.gain.exponentialRampToValueAtTime(.075,now+i*.13+.02);gain.gain.exponentialRampToValueAtTime(.0001,now+i*.13+.24);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.13);osc.stop(now+i*.13+.25)});return;}
   notes.forEach((freq,i)=>{
     const osc=audioContext.createOscillator(),gain=audioContext.createGain();
     osc.type=kind==="take"?"triangle":"sine";
@@ -327,6 +349,12 @@ $("micBtn").addEventListener("click",()=>{
 $("camBtn").addEventListener("click",()=>{
   if(!localStream)return;camEnabled=!camEnabled;localStream.getVideoTracks().forEach(t=>t.enabled=camEnabled);
   $("camBtn").classList.toggle("off",!camEnabled);$("camBtn").querySelector("span").textContent=camEnabled?"Камера":"Камера выкл.";
+});
+$("soundToggle").addEventListener("click",()=>{
+  soundEnabled=!soundEnabled;
+  $("soundToggle").classList.toggle("off",!soundEnabled);
+  $("soundToggle").querySelector("span").textContent=soundEnabled?"Звук Вкл.":"Звук Выкл.";
+  if(soundEnabled){unlockAudio();playSfx("card")}
 });
 $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
