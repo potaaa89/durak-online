@@ -33,7 +33,7 @@ function snapshotFor(player){
   const g=state, other=1-player;
   return {kind:"STATE",version:1,hand:g.hands[player].map(cardId),opponentCount:g.hands[other].length,deckCount:g.deck.length,trump:g.trump,table:g.table.map(p=>({attack:cardId(p.attack),defense:p.defense?cardId(p.defense):null})),attacker:g.attacker,defender:g.defender,turn:g.turn,phase:g.phase,finished:g.finished,winner:g.winner,loser:g.loser,round:g.round};
 }
-function sendState(){if(!host||!conn||!conn.open)return;conn.send(snapshotFor(1));render()}
+function sendState(){if(!host)return;if(conn&&conn.open)conn.send(snapshotFor(1));render()}
 function sendToGuest(obj){if(conn&&conn.open)conn.send(obj)}
 function parseCard(id){return {rank:id.slice(0,-1),suit:id.slice(-1)}}
 function decodeState(msg){
@@ -41,9 +41,9 @@ function decodeState(msg){
   const lookup=new Map(ids.map(id=>[id,parseCard(id)]));
   myHand=msg.hand.map(id=>lookup.get(id));
   state={deckCount:msg.deckCount,opponentCount:msg.opponentCount,trump:msg.trump,table:msg.table.map(p=>({attack:lookup.get(p.attack),defense:p.defense?lookup.get(p.defense):null})),attacker:msg.attacker,defender:msg.defender,turn:msg.turn,phase:msg.phase,finished:msg.finished,winner:msg.winner,loser:msg.loser,round:msg.round};
-  seat=1;render();
+  seat=1;if(!state.finished){lastResultKey="";hideResult()}render();
 }
-function sendAction(action,data={}){if(host)applyAction(0,action,data);else if(conn&&conn.open)conn.send({kind:"ACTION",action,data})}
+function sendAction(action,data={}){if(host){applyAction(0,action,data);return}if(conn&&conn.open){conn.send({kind:"ACTION",action,data});return}toast("Нет соединения с создателем комнаты. Переподключись.")}
 function validAttack(player,c){
   const g=state;
   if(player!==g.attacker||g.turn!==player||g.phase!=="attack")return false;
@@ -122,6 +122,7 @@ function render(){
   $("takeBtn").disabled=!(myTurn&&g.phase==="defend"&&g.defender===mySeat);
   $("beatBtn").disabled=!(myTurn&&g.phase==="attack"&&g.attacker===mySeat&&g.table.length>0&&g.table.every(p=>p.defense));
   $("rematchBtn").classList.toggle("hidden",!g.finished);
+  if(!g.finished)hideResult();
   if(g.finished){
     const key=`${g.winner}-${g.loser}-${g.round}`;
     if(lastResultKey!==key){lastResultKey=key;const title=g.winner===null?"Ничья":g.winner===mySeat?"Вы победили!":"Победил соперник";showResult(title,g.winner===null?"Оба игрока закончили карты одновременно.":g.winner===mySeat?"Поздравляем!":"В этот раз победил соперник.")}
@@ -229,8 +230,8 @@ $("copyInvite").addEventListener("click",async()=>{
 $("takeBtn").addEventListener("click",()=>sendAction("TAKE"));
 $("beatBtn").addEventListener("click",()=>sendAction("BEAT"));
 $("leaveGame").addEventListener("click",returnLobby);
-$("rematchBtn").addEventListener("click",()=>{hideResult();sendAction("REMATCH")});
-$("modalRematch").addEventListener("click",()=>{hideResult();sendAction("REMATCH")});
+$("rematchBtn").addEventListener("click",()=>sendAction("REMATCH"));
+$("modalRematch").addEventListener("click",()=>sendAction("REMATCH"));
 $("modalClose").addEventListener("click",hideResult);
 $("micBtn").addEventListener("click",()=>{
   if(!localStream)return;micEnabled=!micEnabled;localStream.getAudioTracks().forEach(t=>t.enabled=micEnabled);
