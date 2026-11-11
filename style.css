@@ -285,3 +285,25 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 @media(prefers-reduced-motion:reduce){
   .kitten-walk,.kitten-walk img,.kitten-poop{animation:none!important;display:none!important}
 }
+
+
+/* Kitten's little idle behaviors */
+.kitten-action,.kitten-toy{
+  position:absolute;pointer-events:none;opacity:0;z-index:2;
+  filter:drop-shadow(0 1px 2px #00150eaa);
+}
+.kitten-action{right:0;top:-12px;font-size:18px;line-height:1}
+.kitten-toy{left:50%;bottom:-2px;font-size:16px}
+.kitten-walk.grooming img{animation:kittenGroom .45s ease-in-out infinite alternate}
+.kitten-walk.sleeping img{animation:kittenSleep 1.2s ease-in-out infinite}
+.kitten-walk.playing img{animation:kittenPlay .32s ease-in-out infinite alternate}
+.kitten-walk.sitting img{animation:kittenSit .8s ease-in-out infinite alternate}
+.kitten-walk.grooming .kitten-action{opacity:1}
+.kitten-walk.sleeping .kitten-action{opacity:1}
+.kitten-walk.playing .kitten-toy{opacity:1;animation:kittenToy .65s ease-in-out infinite alternate}
+.kitten-walk.sitting .kitten-action{opacity:1}
+@keyframes kittenGroom{from{transform:translateY(0) rotate(0)}to{transform:translateY(2px) rotate(-4deg)}}
+@keyframes kittenSleep{0%,100%{transform:translateY(1px) scaleY(.98)}50%{transform:translateY(3px) scaleY(.94)}}
+@keyframes kittenPlay{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-5px) rotate(4deg)}}
+@keyframes kittenSit{from{transform:translateY(0)}to{transform:translateY(2px)}}
+@keyframes kittenToy{from{transform:translate(0,0) rotate(-15deg)}to{transform:translate(8px,-5px) rotate(25deg)}}
