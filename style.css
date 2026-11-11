@@ -155,9 +155,25 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 .my-hand .card:hover{transform:translateY(-14px) rotate(0deg)!important}
 .my-hand .card.selected{transform:translateY(-20px) rotate(0deg)!important}
 @media(max-width:760px){
-  .my-hand{justify-content:flex-start;padding-left:26px;padding-right:18px;overflow-x:auto}
-  .my-hand .card{margin-left:-23px}
-  .my-hand .card:nth-child(n){transform:rotate(var(--fan-angle,0deg)) translateY(var(--fan-lift,0px))}
+  .hand-section{padding-top:0}
+  .my-hand{
+    justify-content:center;
+    align-items:flex-end;
+    min-height:116px;
+    padding:5px 16px 4px;
+    overflow-x:auto;
+    overflow-y:visible;
+  }
+  .my-hand .card{
+    width:49px;
+    height:73px;
+    margin-left:-19px;
+  }
+  .my-hand .card:first-child{margin-left:0}
+  .my-hand .card:nth-child(n){
+    transform:rotate(var(--fan-angle,0deg)) translateY(calc(var(--fan-lift,0px) - 10px));
+  }
+  .my-hand .card.selected{transform:translateY(-19px) rotate(0deg)!important}
 }
 
 @keyframes cardFadeIn{from{opacity:0}to{opacity:1}}
