@@ -38,16 +38,7 @@ function playSfx(kind){
     thump.connect(thumpGain);thumpGain.connect(audioContext.destination);thump.start(now);thump.stop(now+.09);
   }
   if(kind==="win"){const notes=[523,659,784,1047];notes.forEach((freq,i)=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type="sine";osc.frequency.setValueAtTime(freq,now+i*.13);gain.gain.setValueAtTime(.0001,now+i*.13);gain.gain.exponentialRampToValueAtTime(.075,now+i*.13+.02);gain.gain.exponentialRampToValueAtTime(.0001,now+i*.13+.24);osc.connect(gain);gain.connect(audioContext.destination);osc.start(now+i*.13);osc.stop(now+i*.13+.25)});return;}
-  notes.forEach((freq,i)=>{
-    const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-    osc.type=kind==="take"?"triangle":"sine";
-    osc.frequency.setValueAtTime(freq,now+i*.075);
-    gain.gain.setValueAtTime(.0001,now+i*.075);
-    gain.gain.exponentialRampToValueAtTime(kind==="win"?.12:.065,now+i*.075+.012);
-    gain.gain.exponentialRampToValueAtTime(.0001,now+i*.075+.14);
-    osc.connect(gain);gain.connect(audioContext.destination);
-    osc.start(now+i*.075);osc.stop(now+i*.075+.15);
-  });
+
 }
 function detectGameSound(g,hand,otherCount){
   const snapshot={table:g.table.map(p=>cardId(p.attack)+":"+(p.defense?cardId(p.defense):"")).join("|"),hand:hand.length,other:otherCount,finished:g.finished,deck:host?g.deck.length:g.deckCount};
