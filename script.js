@@ -7,10 +7,57 @@ let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
 let audioContext=null,lastSoundSnapshot=null,soundEnabled=true,previousHandIds=new Set(),previousTableIds=new Set();
+let musicEnabled=false,musicMaster=null,musicTimer=null,musicVoices=[];
 function unlockAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
   if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
+}
+function stopMusic(){
+  musicEnabled=false;
+  if(musicTimer){clearTimeout(musicTimer);musicTimer=null}
+  const now=audioContext?.currentTime||0;
+  musicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(now);v.gain.gain.setTargetAtTime(0,now,.35);v.osc.stop(now+1.5)}catch{}});
+  musicVoices=[];
+  if(musicMaster){try{musicMaster.gain.setTargetAtTime(0,now,.25)}catch{}}
+  updateMusicButton();
+}
+function updateMusicButton(){
+  const b=$("musicToggle");if(!b)return;
+  b.classList.toggle("off",!musicEnabled);
+  b.querySelector("span").textContent=musicEnabled?"Музыка Вкл.":"Музыка Выкл.";
+  b.setAttribute("aria-pressed",String(musicEnabled));
+}
+function playAmbientChord(){
+  if(!musicEnabled||!audioContext||audioContext.state!=="running")return;
+  const chords=[[196,246.94,293.66,369.99],[174.61,220,261.63,329.63],[146.83,185,220,293.66],[164.81,207.65,246.94,311.13]];
+  const chord=chords[Math.floor(Date.now()/12000)%chords.length],now=audioContext.currentTime;
+  musicVoices.forEach(v=>{try{v.gain.gain.setTargetAtTime(0,now,.5);v.osc.stop(now+2)}catch{}});
+  musicVoices=[];
+  chord.forEach((freq,i)=>{
+    const osc=audioContext.createOscillator(),gain=audioContext.createGain(),filter=audioContext.createBiquadFilter();
+    osc.type=i===0?"triangle":"sine";osc.frequency.setValueAtTime(freq,now);
+    filter.type="lowpass";filter.frequency.value=850;
+    gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(i===0?.12:.055,now+2.2);
+    osc.connect(filter);filter.connect(gain);gain.connect(musicMaster);osc.start(now);osc.stop(now+13);
+    musicVoices.push({osc,gain});
+  });
+  musicTimer=setTimeout(playAmbientChord,11500);
+}
+function startMusic(){
+  unlockAudio();
+  if(!audioContext)return;
+  if(audioContext.state!=="running"){audioContext.resume().then(()=>{if(musicEnabled)playAmbientChord()}).catch(()=>{});}
+  musicEnabled=true;
+  if(!musicMaster){musicMaster=audioContext.createGain();musicMaster.gain.value=0;musicMaster.connect(audioContext.destination)}
+  const volume=Number($("musicVolume")?.value??18)/100;
+  musicMaster.gain.setTargetAtTime(volume*.22,audioContext.currentTime,.5);
+  updateMusicButton();
+  if(audioContext.state==="running")playAmbientChord();
+}
+function setMusicVolume(value){
+  if(!musicMaster||!audioContext)return;
+  musicMaster.gain.setTargetAtTime(Number(value)/100*.22,audioContext.currentTime,.12);
 }
 function playSfx(kind){
   if(!soundEnabled||!audioContext||audioContext.state!=="running")return;
@@ -360,6 +407,10 @@ $("soundToggle").addEventListener("click",()=>{
   $("soundToggle").querySelector("span").textContent=soundEnabled?"Звук Вкл.":"Звук Выкл.";
   if(soundEnabled){unlockAudio();playSfx("card")}
 });
+$("musicToggle").addEventListener("click",()=>{
+  if(musicEnabled)stopMusic();else startMusic();
+});
+$("musicVolume").addEventListener("input",e=>setMusicVolume(e.target.value));
 $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
   $("videoToggle").querySelector("span").textContent=videoCollapsed?"Показать видео":"Свернуть видео";
@@ -402,7 +453,7 @@ $("videoToggle").addEventListener("click",()=>{
   document.addEventListener("touchmove",move,{passive:false});
   document.addEventListener("touchend",stop);
 })();
-window.addEventListener("beforeunload",closeConnections);
+window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
 })();
 
 /* Decorative kitten idle actions: visual only, independent of game state */
