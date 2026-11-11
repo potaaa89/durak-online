@@ -223,3 +223,16 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 .modal-card.result-draw .modal-icon{background:#8bc8a522;border-color:#9bcbb0}
 @keyframes resultPop{0%{opacity:0;transform:translateY(22px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:420px){.modal{padding:14px}.modal-card{padding:26px 20px 20px}.modal-card h2{font-size:30px}}
+/* Custom Dark Fantasy card back based on the player's reference image */
+.back-mini,.deck-stack{
+  background-image:url('card-back.webp')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  border:1px solid #c69a50!important;
+  box-shadow:0 2px 6px #0009, inset 0 0 0 1px #f0d28a55;
+}
+.deck-stack{
+  border:2px solid #c69a50!important;
+  box-shadow:3px 3px 0 #8a5a25,6px 6px 0 #3d281c,0 8px 14px #0008;
+}
