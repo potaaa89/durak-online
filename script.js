@@ -401,3 +401,37 @@ $("videoToggle").addEventListener("click",()=>{
 })();
 window.addEventListener("beforeunload",closeConnections);
 })();
+
+/* Decorative kitten idle actions: visual only, independent of game state */
+(function(){
+  const cat=document.querySelector(".kitten-walk");
+  if(!cat)return;
+  const action=document.querySelector(".kitten-action");
+  const moods=[
+    {name:"grooming",symbol:"✨",duration:4200},
+    {name:"sleeping",symbol:"💤",duration:5600},
+    {name:"playing",symbol:"",duration:4300},
+    {name:"sitting",symbol:"🐾",duration:3500}
+  ];
+  let timer=null,clearTimer=null,last=-1;
+  function choose(){
+    if(document.hidden){timer=setTimeout(choose,5000);return;}
+    let n=Math.floor(Math.random()*moods.length);
+    if(n===last)n=(n+1)%moods.length;
+    last=n;
+    const mood=moods[n];
+    cat.classList.remove("grooming","sleeping","playing","sitting");
+    cat.classList.add(mood.name);
+    action.textContent=mood.symbol;
+    clearTimeout(clearTimer);
+    clearTimer=setTimeout(()=>{
+      cat.classList.remove(mood.name);
+      action.textContent="";
+    },mood.duration);
+    timer=setTimeout(choose,9000+Math.random()*7000);
+  }
+  timer=setTimeout(choose,7000);
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden&&!timer)timer=setTimeout(choose,2500);
+  });
+})();
