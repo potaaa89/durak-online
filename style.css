@@ -236,3 +236,13 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   border:2px solid #c69a50!important;
   box-shadow:3px 3px 0 #8a5a25,6px 6px 0 #3d281c,0 8px 14px #0008;
 }
+/* Fix: show the complete artwork across the entire card back */
+.back-mini,.deck-stack{
+  background-size:100% 100%!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-color:#241a18!important;
+}
+.back-mini{margin-left:-10px!important}
+.back-mini:first-child{margin-left:0!important}
+@media(max-width:760px){.back-mini{margin-left:-9px!important}}
