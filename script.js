@@ -245,19 +245,25 @@ function handleHostConnection(c){
   c.on("error",e=>toast("Ошибка соединения: "+e.message));
 }
 function createRoom(){
+  if(typeof window.Peer!=="function"){say("Не загрузилась библиотека подключения. Обнови страницу или проверь интернет.");toast("PeerJS не загрузился");return}
   closeConnections();host=true;seat=0;roomId=String(Math.floor(1000+Math.random()*9000));
-  say("Создаём комнату…");peer=new Peer(roomId,{debug:0});
+  say("Создаём комнату…");peer=new Peer(roomId,{debug:1});
   peer.on("open",id=>{roomId=id;$("hostRoomCode").textContent=String(id).replace(/\D/g,"").slice(0,4);$("hostRoomInfo").classList.remove("hidden");say("Комната готова. Отправь код другу и дождись подключения.");connection(true,"Комната создана");showGame();$("opponentName").textContent="Ожидание игрока";$("opponentLabel").textContent="Соперник";});
   peer.on("connection",handleHostConnection);
   peer.on("call",incoming=>{
     if(!localStream){incoming.answer();mediaCall=incoming;incoming.on("stream",showRemote);return}
     mediaCall=incoming;incoming.answer(localStream);incoming.on("stream",showRemote);
   });
-  peer.on("error",e=>{say("Ошибка PeerJS: "+e.message);toast("PeerJS: "+e.type)});
+  peer.on("error",e=>{
+    const detail=e?.type||e?.message||"неизвестная ошибка";
+    say("Не удалось создать комнату: "+detail+". Нажми «Создать игру» ещё раз.");
+    toast("Ошибка подключения: "+detail);
+  });
   showGame();
   requestMedia();
 }
 function joinRoom(code){
+  if(typeof window.Peer!=="function"){say("Не загрузилась библиотека подключения. Обнови страницу или проверь интернет.");toast("PeerJS не загрузился");return}
   closeConnections();host=false;seat=1;roomId=String(code).replace(/\D/g,"").slice(0,4);
   if(!/^\d{4}$/.test(roomId)){toast("Введи 4 цифры кода комнаты");return}
   const joinButton=$("joinRoom");
@@ -270,7 +276,7 @@ function joinRoom(code){
     closeConnections();joinButton.disabled=false;
     say(message);toast(message);
   };
-  peer=new Peer(undefined,{debug:0});
+  peer=new Peer(undefined,{debug:1});
   peerTimer=setTimeout(()=>failJoin("Сервер не ответил. Проверь интернет и попробуй ещё раз."),15000);
   peer.on("open",()=>{
     clearTimeout(peerTimer);
