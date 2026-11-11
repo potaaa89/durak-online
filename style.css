@@ -533,6 +533,4 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 }
 
 /* Separate background music controls */
-.music-volume{display:flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #ffffff2e;background:#ffffff10;border-radius:8px;color:#e8d39d;font-size:12px}
-.music-volume input{width:76px;accent-color:#d7b66b;cursor:pointer}
-@media(max-width:760px){.music-volume{padding:4px 6px}.music-volume input{width:58px}}
+@media(max-width:760px){}
