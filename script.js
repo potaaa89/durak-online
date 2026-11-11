@@ -189,6 +189,9 @@ function render(){
     el.addEventListener("click",()=>onCardTap(el.dataset.card));
   });
   const myTurn=g.turn===mySeat;
+  const gameTable=$("game").querySelector(".table");
+  gameTable.classList.toggle("turn-mine",!g.finished&&myTurn);
+  gameTable.classList.toggle("turn-opponent",!g.finished&&!myTurn);
   let msg="Ход соперника";
   if(g.finished)msg="Партия завершена";
   else if(g.phase==="take"&&g.attacker===mySeat)msg="Соперник берёт карты. Можете подкинуть карты того же достоинства, затем завершите подкидывание.";
