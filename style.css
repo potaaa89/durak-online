@@ -97,3 +97,51 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* Premium table pass */
+.play-zone{width:min(780px,88%);gap:16px}
+.battlefield{min-height:180px;gap:15px}
+.battle-pair{width:86px;height:124px}
+.card{width:70px;height:102px;border-radius:8px;padding:6px}
+.card .corner{font-size:13px}
+.card .suit{font-size:35px}
+.battle-pair .defense{left:19px;top:20px}
+.trump-card{width:49px;height:70px;border:1px solid #d7c9a8;box-shadow:0 5px 0 #c9bda3,0 8px 15px #0007,inset 0 1px 0 #fff}
+.deck-stack{width:49px;height:70px;box-shadow:3px 3px 0 #e6d8b9,6px 6px 0 #49301f,0 9px 16px #0007}
+.video-dock .remote-box{width:150px}
+.video-dock .self-box{width:100px;top:174px}
+.my-hand{min-height:128px;padding-top:16px;overflow-x:visible}
+.my-hand .card{margin-left:-10px;transform-origin:50% 115%;position:relative}
+.my-hand .card:first-child{margin-left:0}
+.my-hand .card:nth-child(1){transform:rotate(-9deg) translateY(5px)}
+.my-hand .card:nth-child(2){transform:rotate(-6deg) translateY(1px)}
+.my-hand .card:nth-child(3){transform:rotate(-3deg)}
+.my-hand .card:nth-child(4){transform:rotate(3deg)}
+.my-hand .card:nth-child(5){transform:rotate(6deg) translateY(1px)}
+.my-hand .card:nth-child(6){transform:rotate(9deg) translateY(5px)}
+.my-hand .card:hover{transform:translateY(-13px) rotate(0)!important;z-index:5}
+.my-hand .card.selected{transform:translateY(-19px) rotate(0)!important;z-index:6}
+.empty-table{display:flex;flex-direction:column;align-items:center;gap:7px;color:#c5d9ca77;font:italic 18px Georgia,serif}
+.empty-table:before{content:"♠";font:34px Georgia,serif;color:#d7b66b55;text-shadow:0 3px 12px #00170f}
+@media(max-width:760px){
+  .play-zone{width:100%;gap:3px}
+  .battlefield{min-height:125px;gap:5px}
+  .battle-pair{width:62px;height:92px}
+  .card{width:53px;height:78px;padding:4px}
+  .card .corner{font-size:10px}
+  .card .suit{font-size:26px}
+  .battle-pair .defense{left:14px;top:15px}
+  .trump-card{width:34px;height:49px}
+  .deck-stack{width:35px;height:49px}
+  .video-dock .remote-box{width:105px}
+  .video-dock .self-box{width:82px;top:104px}
+  .my-hand{min-height:102px;padding:9px 8px 0;overflow-x:auto}
+  .my-hand .card{width:57px;height:84px;margin-left:-22px}
+  .my-hand .card:nth-child(1){transform:rotate(-6deg) translateY(3px)}
+  .my-hand .card:nth-child(2){transform:rotate(-4deg) translateY(1px)}
+  .my-hand .card:nth-child(3){transform:rotate(-2deg)}
+  .my-hand .card:nth-child(4){transform:rotate(2deg)}
+  .my-hand .card:nth-child(5){transform:rotate(4deg) translateY(1px)}
+  .my-hand .card:nth-child(6){transform:rotate(6deg) translateY(3px)}
+}
