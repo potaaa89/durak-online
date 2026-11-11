@@ -6,7 +6,7 @@ const RV = Object.fromEntries(RANKS.map((r,i)=>[r,i]));
 let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
-let audioContext=null,lastSoundSnapshot=null,soundEnabled=true,previousHandIds=new Set();
+let audioContext=null,lastSoundSnapshot=null,soundEnabled=true,previousHandIds=new Set(),previousTableIds=new Set();
 function unlockAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
@@ -68,7 +68,7 @@ function cardMarkup(c,selectedCard=false,extra=""){return `<div class="card ${is
 function beats(attack,defense,trump){if(attack.suit===defense.suit)return RV[defense.rank]>RV[attack.rank];return defense.suit===trump&&attack.suit!==trump}
 function smallestTrump(hand,trump){return hand.filter(c=>c.suit===trump).sort((a,b)=>RV[a.rank]-RV[b.rank])[0]||null}
 function newGame(){
-  previousHandIds=new Set();
+  previousHandIds=new Set();previousTableIds=new Set();
   const deck=shuffle(buildDeck());
   const hands=[[],[]];
   for(let n=0;n<6;n++){hands[0].push(deck.pop());hands[1].push(deck.pop())}
@@ -170,7 +170,12 @@ function render(){
   $("opponentHand").innerHTML=Array.from({length:Math.min(otherCount,14)},()=>'<span class="back-mini"></span>').join("");
   $("trumpCard").textContent=g.trump||"—";
   $("trumpCard").style.color=["♥","♦"].includes(g.trump)?"#c52e37":"#18202a";
+  const currentTableIds=new Set(g.table.flatMap(p=>[cardId(p.attack),...(p.defense?[cardId(p.defense)]:[])]));
   $("battlefield").innerHTML=g.table.length?g.table.map(p=>`<div class="battle-pair">${cardMarkup(p.attack)}${p.defense?cardMarkup(p.defense,false,"defense"):""}</div>`).join(""):'<div class="empty-table">Карточный стол</div>';
+  $("battlefield").querySelectorAll(".card").forEach(el=>{
+    if(!previousTableIds.has(el.dataset.card)) el.animate([{opacity:0,translate:"0px -28px",scale:.94},{opacity:1,translate:"0px 4px",scale:1.02,offset:.72},{opacity:1,translate:"0px 0px",scale:1}],{duration:420,easing:"cubic-bezier(.18,.75,.25,1)",fill:"both"});
+  });
+  previousTableIds=currentTableIds;
   const currentHandIds=new Set(hand.map(cardId));
   $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c),previousHandIds.has(cardId(c))?"":"dealing")).join("");
   previousHandIds=currentHandIds;
@@ -180,6 +185,7 @@ function render(){
     const lift=Math.abs(angle)*.45;
     el.style.setProperty("--fan-angle",angle+"deg");
     el.style.setProperty("--fan-lift",lift+"px");
+    if(el.classList.contains("dealing")) el.animate([{opacity:0,translate:"0px -72px"},{opacity:1,translate:"0px 7px",offset:.72},{opacity:1,translate:"0px 0px"}],{duration:620,easing:"cubic-bezier(.2,.8,.2,1)",fill:"both",delay:i*65});
     el.addEventListener("click",()=>onCardTap(el.dataset.card));
   });
   const myTurn=g.turn===mySeat;
