@@ -6,7 +6,7 @@ const RV = Object.fromEntries(RANKS.map((r,i)=>[r,i]));
 let peer=null, conn=null, mediaCall=null, localStream=null, remoteStream=null;
 let host=false, roomId="", state=null, myHand=[], seat=0, selected=null, connected=false;
 let micEnabled=true, camEnabled=true, videoCollapsed=false, toastTimer=null, lastResultKey="";
-let audioContext=null,lastSoundSnapshot=null,soundEnabled=true;
+let audioContext=null,lastSoundSnapshot=null,soundEnabled=true,previousHandIds=new Set();
 function unlockAudio(){
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!audioContext&&AudioCtx)audioContext=new AudioCtx();
@@ -68,6 +68,7 @@ function cardMarkup(c,selectedCard=false,extra=""){return `<div class="card ${is
 function beats(attack,defense,trump){if(attack.suit===defense.suit)return RV[defense.rank]>RV[attack.rank];return defense.suit===trump&&attack.suit!==trump}
 function smallestTrump(hand,trump){return hand.filter(c=>c.suit===trump).sort((a,b)=>RV[a.rank]-RV[b.rank])[0]||null}
 function newGame(){
+  previousHandIds=new Set();
   const deck=shuffle(buildDeck());
   const hands=[[],[]];
   for(let n=0;n<6;n++){hands[0].push(deck.pop());hands[1].push(deck.pop())}
@@ -170,7 +171,9 @@ function render(){
   $("trumpCard").textContent=g.trump||"—";
   $("trumpCard").style.color=["♥","♦"].includes(g.trump)?"#c52e37":"#18202a";
   $("battlefield").innerHTML=g.table.length?g.table.map(p=>`<div class="battle-pair">${cardMarkup(p.attack)}${p.defense?cardMarkup(p.defense,false,"defense"):""}</div>`).join(""):'<div class="empty-table">Карточный стол</div>';
-  $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c))).join("");
+  const currentHandIds=new Set(hand.map(cardId));
+  $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c),previousHandIds.has(cardId(c))?"":"dealing")).join("");
+  previousHandIds=currentHandIds;
   const handCards=$("myHand").querySelectorAll(".card");
   handCards.forEach((el,i)=>{
     const count=handCards.length,angle=count>1?(i-(count-1)/2)*Math.min(13,65/(count-1)):0;
