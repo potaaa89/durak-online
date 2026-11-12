@@ -550,3 +550,18 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 }
 @media(max-width:760px){.play-zone{--supply-width:91px}}
 @media(max-width:390px){.play-zone{--supply-width:84px}}
+
+/* Final alignment: placeholder is centered relative to the whole play zone */
+.play-zone{position:relative}
+.play-zone .battlefield{position:static}
+.play-zone .empty-table{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:max-content;
+  max-width:calc(100% - 18px);
+  white-space:normal;
+  text-align:center;
+  transform:translate(-50%,-50%);
+  z-index:0;
+}
