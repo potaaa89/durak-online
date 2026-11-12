@@ -467,7 +467,7 @@ function joinRoom(code){
 }
 document.addEventListener("pointerdown",unlockAudio,{once:true});
 $("musicLoad").addEventListener("click",loadMusic);
-$("musicUrl").addEventListener("keydown",e=>{if(e.key==="Enter")loadMusic()});
+
 $("musicSearch").addEventListener("click",searchYouTubeMusic);
 $("musicUrl").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchYouTubeMusic()}});
 
