@@ -807,3 +807,13 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
     z-index:10!important;
   }
 }
+
+
+/* Mobile: place action buttons flush against the very bottom border of the table */
+@media(max-width:760px){
+  .table-content{padding-bottom:42px!important;}
+  .table-content .actions{
+    bottom:0!important;
+    margin-bottom:0!important;
+  }
+}
