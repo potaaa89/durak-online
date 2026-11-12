@@ -698,3 +698,31 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
     right:auto!important;
   }
 }
+
+
+/* Expand opponent video to fullscreen */
+.video-dock .remote-box{overflow:hidden}
+.video-expand-btn{
+  position:absolute;top:8px;right:8px;z-index:12;
+  width:34px;height:34px;border:1px solid #e5cc8a99;border-radius:8px;
+  background:#071b13cc;color:#f5dfaa;font-size:22px;line-height:1;
+  display:grid;place-items:center;cursor:pointer;
+}
+.video-expand-btn:hover{background:#173e2d}
+.video-dock .remote-box:fullscreen,
+.video-dock .remote-box.video-expanded{
+  position:fixed!important;inset:0!important;
+  width:100vw!important;height:100dvh!important;max-width:none!important;
+  aspect-ratio:auto!important;border:0!important;border-radius:0!important;
+  z-index:99999!important;background:#000!important;
+}
+.video-dock .remote-box:fullscreen video,
+.video-dock .remote-box.video-expanded video{
+  width:100%;height:100%;object-fit:contain;
+}
+.video-dock .remote-box:fullscreen .video-placeholder,
+.video-dock .remote-box.video-expanded .video-placeholder{
+  width:100%;height:100%;
+}
+.video-dock .remote-box:fullscreen .video-expand-btn,
+.video-dock .remote-box.video-expanded .video-expand-btn{top:16px;right:16px}
