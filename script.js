@@ -163,6 +163,11 @@ function publish(){if(host)sendState();else render()}
 function render(){
   if(!state)return;
   const g=state, hand=host?g.hands[0]:myHand, otherCount=host?g.hands[1].length:g.opponentCount, mySeat=host?0:1;
+  const suitOrder=[g.trump,...["♠","♥","♦","♣"].filter(suit=>suit!==g.trump)];
+  const sortedHand=[...hand].sort((a,b)=>{
+    const suitDiff=suitOrder.indexOf(a.suit)-suitOrder.indexOf(b.suit);
+    return suitDiff||((RV[b.rank]||0)-(RV[a.rank]||0));
+  });
   detectGameSound(g,hand,otherCount);
   $("deckCount").textContent=host?g.deck.length:g.deckCount;
   $("opponentCount").textContent=`${otherCount} карт`;$("opponentCards").textContent=`${otherCount} карт`;
@@ -176,8 +181,8 @@ function render(){
     if(!previousTableIds.has(el.dataset.card)) el.animate([{opacity:0,translate:"0px -28px",scale:.94},{opacity:1,translate:"0px 4px",scale:1.02,offset:.72},{opacity:1,translate:"0px 0px",scale:1}],{duration:420,easing:"cubic-bezier(.18,.75,.25,1)",fill:"both"});
   });
   previousTableIds=currentTableIds;
-  const currentHandIds=new Set(hand.map(cardId));
-  $("myHand").innerHTML=hand.map(c=>cardMarkup(c,selected===cardId(c),previousHandIds.has(cardId(c))?"":"dealing")).join("");
+  const currentHandIds=new Set(sortedHand.map(cardId));
+  $("myHand").innerHTML=sortedHand.map(c=>cardMarkup(c,selected===cardId(c),previousHandIds.has(cardId(c))?"":"dealing")).join("");
   previousHandIds=currentHandIds;
   const handCards=$("myHand").querySelectorAll(".card");
   handCards.forEach((el,i)=>{
