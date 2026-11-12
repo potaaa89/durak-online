@@ -676,7 +676,7 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
     paused=true;
     clearTimeout(visibilityTimer);
     cat.classList.add("kitten-squashed");
-    action.textContent="МЯУ!";
+    action.textContent="МЯУ! ТЫ БУДУ!?";
     clearTimeout(hitTimer);
     hitTimer=setTimeout(()=>{
       cat.classList.remove("kitten-squashed");
