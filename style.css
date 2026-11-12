@@ -897,3 +897,16 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
     aspect-ratio:3/4!important;
   }
 }
+
+
+/* Roaming interactive kitten across the entire viewport */
+/* Overrides the original table-crossing animation */
+.kitten-walk{position:fixed!important;left:24px;top:140px;bottom:auto!important;width:72px;height:64px;z-index:10000!important;opacity:1!important;animation:none!important;pointer-events:auto!important;cursor:pointer;touch-action:manipulation;user-select:none;transition:none!important;}
+.kitten-walk img{transform:scaleX(var(--cat-facing,1));animation:kittenBob .42s ease-in-out infinite alternate;}
+.kitten-walk .kitten-poop{display:none!important;}
+.kitten-walk .kitten-action{position:absolute;top:-25px;left:50%;right:auto;transform:translateX(-50%);white-space:nowrap;font-size:15px;font-weight:900;color:#ffe49b;text-shadow:0 2px 3px #000;opacity:0;}
+.kitten-walk.kitten-squashed img{animation:none!important;transform:scaleX(1.25) scaleY(.42) translateY(32px)!important;filter:drop-shadow(0 2px 4px #0009);}
+.kitten-walk.kitten-squashed .kitten-action{opacity:1!important;}
+@media(max-width:760px){.kitten-walk{width:54px!important;height:48px!important;}}
+@media(prefers-reduced-motion:reduce){.kitten-walk{display:block!important;animation:none!important;}.kitten-walk img{animation:none!important;}}
+body.remote-video-overlay-open .kitten-walk{z-index:2147483647!important;}
