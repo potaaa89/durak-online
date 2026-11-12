@@ -703,9 +703,9 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 /* Expand opponent video to fullscreen */
 .video-dock .remote-box{overflow:hidden}
 .video-expand-btn{
-  position:absolute;top:8px;right:8px;z-index:12;
-  width:34px;height:34px;border:1px solid #e5cc8a99;border-radius:8px;
-  background:#071b13cc;color:#f5dfaa;font-size:22px;line-height:1;
+  position:absolute;top:7px;right:7px;z-index:12;
+  width:24px;height:24px;border:1px solid #e5cc8a99;border-radius:6px;
+  padding:0;background:#071b13cc;color:#f5dfaa;font-size:15px;line-height:1;
   display:grid;place-items:center;cursor:pointer;
 }
 .video-expand-btn:hover{background:#173e2d}
