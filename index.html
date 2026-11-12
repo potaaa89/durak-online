@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#082b20">
   <title>Подкидной дурак — онлайн</title>
-  <link rel="stylesheet" href="style.css?v=youtube-sync-player">
+  <link rel="stylesheet" href="style.css?v=youtube-search-inline">
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'"></script>
 </head>
 <body>
@@ -115,10 +115,11 @@
       <section class="music-panel" id="musicPanel">
         <div class="music-heading"><span>♫</span><b>МУЗЫКА ДЛЯ ИГРЫ</b><small id="musicStatus">Ожидание трека</small></div>
         <div class="music-controls">
-          <input id="musicUrl" type="text" placeholder="Вставь ссылку или ID видео YouTube" aria-label="Ссылка или ID видео YouTube">
+          <input id="musicUrl" type="text" placeholder="Название песни или ссылка YouTube" aria-label="Название песни или ссылка YouTube">
           <button id="musicLoad" type="button">Добавить</button>
-          <button id="musicSearch" type="button" title="Найти видео на YouTube">Поиск</button>
+          <button id="musicSearch" type="button" title="Искать песни на YouTube">Найти песню</button>
         </div>
+        <div id="musicResults" class="music-results" aria-live="polite"></div>
         <div class="music-actions">
           <button id="musicPlay" type="button" disabled>▶ Пуск</button>
           <button id="musicPause" type="button" disabled>Ⅱ Пауза</button>
@@ -144,6 +145,6 @@
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="script.js?v=youtube-sync-player-ready"></script>
+  <script src="script.js?v=youtube-search-inline"></script>
 </body>
 </html>
