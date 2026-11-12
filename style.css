@@ -638,3 +638,15 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
     transform:translateY(60px);
   }
 }
+
+
+/* Match the user's mobile camera preview to the opponent video size */
+@media(max-width:760px){
+  .video-dock .self-box{
+    width:104px!important;
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    top:190px;
+    right:11px;
+  }
+}
