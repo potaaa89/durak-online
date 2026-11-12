@@ -617,7 +617,7 @@ $("videoToggle").addEventListener("click",()=>{
 window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
 })();
 
-/* Roaming screen mascot. Tap/click to playfully squash it. */
+/* Roaming screen mascot. Appears occasionally; tap/click to playfully squash it. */
 (function(){
   const cat=document.querySelector(".kitten-walk");
   if(!cat)return;
@@ -626,9 +626,8 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
   cat.setAttribute("tabindex","0");
   cat.setAttribute("aria-label","Поймать котика");
   const action=cat.querySelector(".kitten-action");
-  const img=cat.querySelector("img");
-  let x=24,y=140,targetX=24,targetY=140,heading=1,paused=false;
-  let last=0,restUntil=0,hitTimer=0;
+  let x=24,y=140,targetX=24,targetY=140,heading=1,paused=false,visible=false;
+  let last=0,restUntil=0,hitTimer=0,visibilityTimer=0;
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const bounds=()=>({w:Math.max(0,window.innerWidth-cat.offsetWidth-6),h:Math.max(0,window.innerHeight-cat.offsetHeight-6)});
   const clamp=(v,max)=>Math.max(6,Math.min(max,v));
@@ -642,15 +641,27 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
     cat.style.left=x+"px";cat.style.top=y+"px";
     cat.style.setProperty("--cat-facing",heading);
   }
+  function hideAndWait(){
+    visible=false;
+    cat.classList.add("kitten-away");
+    clearTimeout(visibilityTimer);
+    visibilityTimer=setTimeout(appear,22000+Math.random()*28000);
+  }
+  function appear(){
+    if(document.hidden){visibilityTimer=setTimeout(appear,5000);return;}
+    visible=true;
+    cat.classList.remove("kitten-away");
+    nextTarget();
+    visibilityTimer=setTimeout(hideAndWait,8000+Math.random()*9000);
+  }
   function tick(t){
-    if(!document.hidden&&!paused&&!reduced){
+    if(visible&&!document.hidden&&!paused&&!reduced){
       if(t>=restUntil){
         const dx=targetX-x,dy=targetY-y,dist=Math.hypot(dx,dy);
         if(dist<12)nextTarget();
         else{
           const dt=Math.min(40,t-(last||t));
-          const speed=42;
-          const step=Math.min(dist,speed*dt/1000);
+          const step=Math.min(dist,42*dt/1000);
           x+=dx/dist*step;y+=dy/dist*step;
           if(Math.abs(dx)>3)heading=dx>0?1:-1;
         }
@@ -661,25 +672,26 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
   }
   function squash(e){
     if(e&&e.cancelable)e.preventDefault();
-    if(paused)return;
+    if(paused||!visible)return;
     paused=true;
+    clearTimeout(visibilityTimer);
     cat.classList.add("kitten-squashed");
     action.textContent="МЯУ!";
     clearTimeout(hitTimer);
     hitTimer=setTimeout(()=>{
       cat.classList.remove("kitten-squashed");
       action.textContent="";
-      const b=bounds();
-      x=clamp(x,b.w);y=clamp(y,b.h);
-      nextTarget();
       paused=false;
+      hideAndWait();
     },950);
   }
   cat.addEventListener("pointerdown",squash);
   cat.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){squash(e)}});
   window.addEventListener("resize",()=>{const b=bounds();x=clamp(x,b.w);y=clamp(y,b.h);paint();nextTarget()});
   x=Math.min(window.innerWidth-75,24);y=Math.min(window.innerHeight-75,140);
-  nextTarget();paint();
-  if(reduced){cat.style.left="12px";cat.style.top="120px";}
-  else requestAnimationFrame(tick);
+  paint();
+  cat.classList.add("kitten-away");
+  visibilityTimer=setTimeout(appear,10000+Math.random()*15000);
+  if(!reduced)requestAnimationFrame(tick);
+  else visibilityTimer=setTimeout(appear,10000+Math.random()*15000);
 })();
