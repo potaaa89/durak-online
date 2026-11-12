@@ -535,15 +535,19 @@ $("soundToggle").addEventListener("click",()=>{
   if(soundEnabled){unlockAudio();playSfx("card")}
 });
 const remoteBox=document.querySelector(".video-dock .remote-box");
+const selfBox=document.querySelector(".video-dock .self-box");
 const expandRemoteBtn=$("expandRemoteVideo");
 if(remoteBox&&expandRemoteBtn){
   const homeParent=remoteBox.parentNode;
   const homeNext=remoteBox.nextSibling;
+  const selfHomeParent=selfBox?.parentNode;
+  const selfHomeNext=selfBox?.nextSibling;
   let overlayOpen=false;
   const setExpanded=expanded=>{
     overlayOpen=expanded;
     if(expanded){
       if(remoteBox.parentNode!==document.body)document.body.appendChild(remoteBox);
+      if(selfBox&&selfBox.parentNode!==document.body)document.body.appendChild(selfBox);
       document.body.classList.add("remote-video-overlay-open");
     }else{
       document.body.classList.remove("remote-video-overlay-open");
@@ -551,8 +555,13 @@ if(remoteBox&&expandRemoteBtn){
         if(homeNext&&homeNext.parentNode===homeParent)homeParent.insertBefore(remoteBox,homeNext);
         else homeParent.appendChild(remoteBox);
       }
+      if(selfBox&&selfBox.parentNode===document.body&&selfHomeParent){
+        if(selfHomeNext&&selfHomeNext.parentNode===selfHomeParent)selfHomeParent.insertBefore(selfBox,selfHomeNext);
+        else selfHomeParent.appendChild(selfBox);
+      }
     }
     remoteBox.classList.toggle("video-expanded",expanded);
+    if(selfBox)selfBox.classList.toggle("video-self-overlay",expanded);
     expandRemoteBtn.textContent=expanded?"⤢":"⛶";
     expandRemoteBtn.title=expanded?"Свернуть видео":"На весь экран";
     expandRemoteBtn.setAttribute("aria-label",expanded?"Свернуть видео":"Развернуть видео соперника");
