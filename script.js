@@ -148,6 +148,7 @@ window.onYouTubeIframeAPIReady=function(){
     onError:e=>setMusicStatus("YouTube не разрешил воспроизведение (код "+e.data+")")
   }});
 };
+if(window.YT&&window.YT.Player)window.onYouTubeIframeAPIReady();
 function stopMusic(){try{if(ytPlayer&&ytReady)ytPlayer.stopVideo()}catch(e){}}
 function enableMusicPlayback(){
   musicUnlocked=true;
