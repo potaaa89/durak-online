@@ -617,3 +617,17 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
     top:190px;
   }
 }
+
+/* Portrait format for the opponent camera */
+.video-dock .remote-box{
+  width:190px!important;
+  aspect-ratio:3/4!important;
+  height:auto!important;
+}
+@media(max-width:760px){
+  .video-dock .remote-box{
+    width:104px!important;
+    aspect-ratio:3/4!important;
+    height:auto!important;
+  }
+}
