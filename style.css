@@ -817,3 +817,19 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
     margin-bottom:0!important;
   }
 }
+
+
+/* Mobile: anchor action buttons to the table itself, not the shorter content column */
+@media(max-width:760px){
+  .table-content{position:static!important;padding-bottom:0!important;}
+  .table-content .actions{
+    position:absolute!important;
+    top:auto!important;
+    bottom:8px!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    width:min(280px,calc(100% - 24px))!important;
+    margin:0!important;
+    z-index:12!important;
+  }
+}
