@@ -617,36 +617,69 @@ $("videoToggle").addEventListener("click",()=>{
 window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
 })();
 
-/* Decorative kitten idle actions: visual only, independent of game state */
+/* Roaming screen mascot. Tap/click to playfully squash it. */
 (function(){
   const cat=document.querySelector(".kitten-walk");
   if(!cat)return;
-  const action=document.querySelector(".kitten-action");
-  const moods=[
-    {name:"grooming",symbol:"✨",duration:4200},
-    {name:"sleeping",symbol:"💤",duration:5600},
-    {name:"playing",symbol:"",duration:4300},
-    {name:"sitting",symbol:"🐾",duration:3500}
-  ];
-  let timer=null,clearTimer=null,last=-1;
-  function choose(){
-    if(document.hidden){timer=setTimeout(choose,5000);return;}
-    let n=Math.floor(Math.random()*moods.length);
-    if(n===last)n=(n+1)%moods.length;
-    last=n;
-    const mood=moods[n];
-    cat.classList.remove("grooming","sleeping","playing","sitting");
-    cat.classList.add(mood.name);
-    action.textContent=mood.symbol;
-    clearTimeout(clearTimer);
-    clearTimer=setTimeout(()=>{
-      cat.classList.remove(mood.name);
-      action.textContent="";
-    },mood.duration);
-    timer=setTimeout(choose,9000+Math.random()*7000);
+  document.body.appendChild(cat);
+  cat.setAttribute("role","button");
+  cat.setAttribute("tabindex","0");
+  cat.setAttribute("aria-label","Поймать котика");
+  const action=cat.querySelector(".kitten-action");
+  const img=cat.querySelector("img");
+  let x=24,y=140,targetX=24,targetY=140,heading=1,paused=false;
+  let last=0,restUntil=0,hitTimer=0;
+  const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const bounds=()=>({w:Math.max(0,window.innerWidth-cat.offsetWidth-6),h:Math.max(0,window.innerHeight-cat.offsetHeight-6)});
+  const clamp=(v,max)=>Math.max(6,Math.min(max,v));
+  function nextTarget(){
+    const b=bounds();
+    targetX=clamp(10+Math.random()*b.w,b.w);
+    targetY=clamp(20+Math.random()*b.h,b.h);
+    restUntil=performance.now()+400+Math.random()*1200;
   }
-  timer=setTimeout(choose,7000);
-  document.addEventListener("visibilitychange",()=>{
-    if(!document.hidden&&!timer)timer=setTimeout(choose,2500);
-  });
+  function paint(){
+    cat.style.left=x+"px";cat.style.top=y+"px";
+    cat.style.setProperty("--cat-facing",heading);
+  }
+  function tick(t){
+    if(!document.hidden&&!paused&&!reduced){
+      if(t>=restUntil){
+        const dx=targetX-x,dy=targetY-y,dist=Math.hypot(dx,dy);
+        if(dist<12)nextTarget();
+        else{
+          const dt=Math.min(40,t-(last||t));
+          const speed=42;
+          const step=Math.min(dist,speed*dt/1000);
+          x+=dx/dist*step;y+=dy/dist*step;
+          if(Math.abs(dx)>3)heading=dx>0?1:-1;
+        }
+      }
+      const b=bounds();x=clamp(x,b.w);y=clamp(y,b.h);paint();
+    }
+    last=t;requestAnimationFrame(tick);
+  }
+  function squash(e){
+    if(e&&e.cancelable)e.preventDefault();
+    if(paused)return;
+    paused=true;
+    cat.classList.add("kitten-squashed");
+    action.textContent="МЯУ!";
+    clearTimeout(hitTimer);
+    hitTimer=setTimeout(()=>{
+      cat.classList.remove("kitten-squashed");
+      action.textContent="";
+      const b=bounds();
+      x=clamp(x,b.w);y=clamp(y,b.h);
+      nextTarget();
+      paused=false;
+    },950);
+  }
+  cat.addEventListener("pointerdown",squash);
+  cat.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){squash(e)}});
+  window.addEventListener("resize",()=>{const b=bounds();x=clamp(x,b.w);y=clamp(y,b.h);paint();nextTarget()});
+  x=Math.min(window.innerWidth-75,24);y=Math.min(window.innerHeight-75,140);
+  nextTarget();paint();
+  if(reduced){cat.style.left="12px";cat.style.top="120px";}
+  else requestAnimationFrame(tick);
 })();
