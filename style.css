@@ -565,3 +565,19 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   transform:translate(-50%,-50%);
   z-index:0;
 }
+
+/* Final fix: empty-table caption uses the full table-content as its anchor */
+.play-zone{position:static!important}
+.play-zone .battlefield{position:static!important}
+.play-zone .empty-table{
+  position:absolute!important;
+  left:50%!important;
+  top:54%!important;
+  width:max-content!important;
+  max-width:calc(100% - 28px)!important;
+  white-space:normal!important;
+  text-align:center!important;
+  transform:translate(-50%,-50%)!important;
+  z-index:1!important;
+  margin:0!important;
+}
