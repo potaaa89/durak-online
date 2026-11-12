@@ -774,3 +774,20 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
   }
   .table-content .action-btn{visibility:visible!important;opacity:1!important;}
 }
+
+
+/* Mobile: slightly smaller Durak action buttons, positioned a little lower */
+@media(max-width:760px){
+  .table-content .actions{
+    top:8px!important;
+    width:min(100%,280px)!important;
+    gap:7px!important;
+  }
+  .table-content .action-btn{
+    min-width:0!important;
+    padding:7px 9px!important;
+    font-size:10px!important;
+    line-height:1.15!important;
+    border-radius:7px!important;
+  }
+}
