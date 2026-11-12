@@ -726,3 +726,28 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 }
 .video-dock .remote-box:fullscreen .video-expand-btn,
 .video-dock .remote-box.video-expanded .video-expand-btn{top:16px;right:16px}
+
+
+/* Compact shared YouTube music player */
+.music-panel{margin:14px auto 0;padding:13px 15px;max-width:900px;border:1px solid #b89555;border-radius:12px;background:linear-gradient(145deg,#102f24,#092219);color:#f2e6c8;box-shadow:0 5px 18px #0004}
+.music-heading{display:flex;align-items:center;gap:9px;margin-bottom:10px;font-size:12px;letter-spacing:.08em}
+.music-heading>span{font-size:20px;color:#e3c17b}.music-heading small{margin-left:auto;color:#c7b68d;font-size:11px;letter-spacing:0}
+.music-controls,.music-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.music-controls input{flex:1 1 220px;min-width:0;padding:9px 11px;border:1px solid #927747;border-radius:7px;background:#071b14;color:#fff}
+.music-panel button{border:1px solid #b89555;border-radius:7px;padding:8px 11px;background:#1b4935;color:#f7e9c5;font-weight:700;cursor:pointer}
+.music-panel button:disabled{opacity:.4;cursor:not-allowed}
+.music-actions{margin-top:9px}.music-actions label{display:flex;align-items:center;gap:7px;font-size:11px;color:#d6c59f}
+.music-actions input[type=range]{width:95px;accent-color:#d9b66e}
+.music-actions #musicEnable{margin-left:auto;background:#314b36}
+.youtube-player{width:320px;max-width:100%;height:180px;margin:10px auto 0;background:#000;border-radius:8px;overflow:hidden}
+.music-note{margin:8px 0 0;color:#b8ad91;font-size:10px;line-height:1.4;text-align:center}
+@media(max-width:760px){
+ .music-panel{margin:12px 8px 0;padding:10px;border-radius:10px}
+ .music-heading{font-size:11px}.music-heading small{font-size:10px}
+ .music-controls input{flex-basis:100%;font-size:13px}
+ .music-controls button{flex:1}
+ .music-actions{gap:6px}.music-actions button{font-size:11px;padding:8px}
+ .music-actions label{width:100%;justify-content:center}
+ .music-actions #musicEnable{margin-left:0;flex:1}
+ .youtube-player{height:180px}
+}
