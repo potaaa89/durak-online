@@ -640,14 +640,15 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 }
 
 
-/* Match the user's mobile camera preview to the opponent video size */
+/* Mobile: place the user's camera in the opposite top corner from the opponent */
 @media(max-width:760px){
   .video-dock .self-box{
     width:104px!important;
     aspect-ratio:3/4!important;
     height:auto!important;
-    top:190px;
-    right:11px;
+    top:10px;
+    left:11px;
+    right:auto;
   }
 }
 
