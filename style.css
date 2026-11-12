@@ -689,7 +689,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 /* Subtle gold Durak emblem in the center of the felt */
 .table-content{isolation:isolate}
 .table-content:before{
-  content:"A  ♠   K  ♥\\A\\A       ♠\\A\\A  ДУРАК ОНЛАЙН  \\A\\A       ❧  ✦  ❧";
+  content:"A  ♠   K  ♥\\A\\A       ♠\\A\\A       ❧  ✦  ❧";
   white-space:pre;
   position:absolute;
   left:50%;
