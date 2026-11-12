@@ -685,3 +685,16 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 /* Remove the empty-table placeholder text and spade icon */
 .empty-table{display:none!important}
 
+
+
+/* Desktop: match the opponent video size and place own video at top-left */
+@media(min-width:761px){
+  .video-dock .self-box{
+    width:190px!important;
+    aspect-ratio:3/4!important;
+    height:auto!important;
+    top:22px!important;
+    left:26px!important;
+    right:auto!important;
+  }
+}
