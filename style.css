@@ -679,3 +679,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
     z-index:3;
   }
 }
+
+
+/* Remove the empty-table placeholder text and spade icon */
+.empty-table{display:none!important}
