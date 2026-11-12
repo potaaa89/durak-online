@@ -759,3 +759,18 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
 .music-result-info strong{font-size:11px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .music-result-info small{font-size:10px;color:#c6b58e}
 @media(max-width:760px){.music-results{grid-template-columns:1fr;max-height:220px}.music-result img{width:100px;height:56px;flex-basis:100px}}
+
+
+/* Keep Durak action buttons visible on mobile */
+@media(max-width:760px){
+  .table-content .actions{
+    position:relative!important;
+    top:0!important;
+    z-index:10!important;
+    display:flex!important;
+    width:min(100%,320px);
+    margin:8px auto 0!important;
+    flex:0 0 auto;
+  }
+  .table-content .action-btn{visibility:visible!important;opacity:1!important;}
+}
