@@ -652,7 +652,7 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 }
 
 
-/* Mobile: shift only the cards currently on the battlefield slightly to the right */
+/* Mobile: shift only the cards currently on the battlefield slightly to the left */
 @media (max-width:760px){
-  .battlefield .battle-pair{position:relative;left:20px;}
+  .battlefield .battle-pair{position:relative;left:-20px;}
 }
