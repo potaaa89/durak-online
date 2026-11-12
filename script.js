@@ -147,7 +147,16 @@ function applyMusicMessage(msg,relay=false){
     if(ytReady){ytPlayer.stopVideo();ytPlayer.seekTo(0,true)}setMusicStatus("Остановлено");
   }else if(msg.action==="SEEK"){
     if(ytReady)ytPlayer.seekTo(Number(d.time)||0,true);
+  }else if(msg.action==="VOLUME"){
+    const volume=Math.max(0,Math.min(100,Number(d.volume)||0));
+    $("musicVolume").value=String(volume);
+    if(ytReady)ytPlayer.setVolume(volume);
   }
+}
+function changeSharedMusicVolume(value){
+  const volume=Math.max(0,Math.min(100,Number(value)||0));
+  if(ytReady)ytPlayer.setVolume(volume);
+  musicSend("VOLUME",{volume});
 }
 function musicButtons(enabled){
   ["musicPlay","musicPause","musicStop"].forEach(id=>$(id).disabled=!enabled);
@@ -494,7 +503,7 @@ $("musicPlay").addEventListener("click",playSharedMusic);
 $("musicPause").addEventListener("click",pauseSharedMusic);
 $("musicStop").addEventListener("click",stopSharedMusic);
 $("musicEnable").addEventListener("click",enableMusicPlayback);
-$("musicVolume").addEventListener("input",e=>{if(ytReady)ytPlayer.setVolume(Number(e.target.value))});
+$("musicVolume").addEventListener("input",e=>changeSharedMusicVolume(e.target.value));
 $("createRoom").addEventListener("click",createRoom);
 $("joinRoom").addEventListener("click",()=>joinRoom($("roomInput").value));
 $("roomInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
