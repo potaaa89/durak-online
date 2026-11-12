@@ -95,6 +95,93 @@ function decodeState(msg){
   state={deckCount:msg.deckCount,opponentCount:msg.opponentCount,trump:msg.trump,table:msg.table.map(p=>({attack:lookup.get(p.attack),defense:p.defense?lookup.get(p.defense):null})),attacker:msg.attacker,defender:msg.defender,turn:msg.turn,phase:msg.phase,finished:msg.finished,winner:msg.winner,loser:msg.loser,round:msg.round};
   seat=1;if(!state.finished){lastResultKey="";hideResult()}render();
 }
+
+/* Shared YouTube player: both clients play the same video in sync. */
+let ytPlayer=null,ytReady=false,currentMusicId="",musicUnlocked=false,musicSeq=0,musicPending=null;
+function extractYouTubeId(value){
+  const v=String(value||"").trim();
+  if(/^[a-zA-Z0-9_-]{11}$/.test(v))return v;
+  try{
+    const u=new URL(v);
+    if(u.hostname==="youtu.be")return u.pathname.slice(1).split("/")[0].slice(0,11);
+    if(/(^|\\.)youtube\\.com$/.test(u.hostname)){
+      if(u.searchParams.get("v"))return u.searchParams.get("v").slice(0,11);
+      const m=u.pathname.match(/\\/(?:embed|shorts|live)\\/([\\w-]{11})/);if(m)return m[1];
+    }
+  }catch(e){}
+  return "";
+}
+function setMusicStatus(text){const el=$("musicStatus");if(el)el.textContent=text}
+function musicSend(action,data={}){
+  const msg={kind:"MUSIC",action,data,seq:++musicSeq,from:host?"host":"guest"};
+  if(host){if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+}
+function applyMusicMessage(msg,relay=false){
+  if(!msg||msg.kind!=="MUSIC")return;
+  if(host&&relay&&conn&&conn.open)conn.send(msg);
+  const d=msg.data||{};
+  if(msg.action==="LOAD"){
+    currentMusicId=d.videoId||"";
+    if(ytReady&&currentMusicId){ytPlayer.loadVideoById({videoId:currentMusicId,startSeconds:0});setMusicStatus("Загружено · "+currentMusicId);musicButtons(true)}
+    else musicPending=msg;
+  }else if(msg.action==="PLAY"){
+    const startAt=Number(d.startAt)||Date.now()+900;
+    const offset=Math.max(0,(Date.now()-startAt)/1000)+(Number(d.time)||0);
+    const run=()=>{if(!ytReady||!currentMusicId)return;ytPlayer.seekTo(offset,true);ytPlayer.playVideo();setMusicStatus("Воспроизводится у обоих")};
+    if(ytReady) setTimeout(run,Math.max(0,startAt-Date.now())); else musicPending=msg;
+  }else if(msg.action==="PAUSE"){
+    if(ytReady)ytPlayer.pauseVideo();setMusicStatus("Пауза");
+  }else if(msg.action==="STOP"){
+    if(ytReady){ytPlayer.stopVideo();ytPlayer.seekTo(0,true)}setMusicStatus("Остановлено");
+  }else if(msg.action==="SEEK"){
+    if(ytReady)ytPlayer.seekTo(Number(d.time)||0,true);
+  }
+}
+function musicButtons(enabled){
+  ["musicPlay","musicPause","musicStop"].forEach(id=>$(id).disabled=!enabled);
+}
+window.onYouTubeIframeAPIReady=function(){
+  ytPlayer=new YT.Player("youtubePlayer",{height:"180",width:"320",videoId:"",playerVars:{playsinline:1,controls:1,rel:0,modestbranding:1,origin:location.origin},events:{
+    onReady:e=>{ytReady=true;e.target.setVolume(Number($("musicVolume").value));musicButtons(!!currentMusicId);if(musicPending){const m=musicPending;musicPending=null;applyMusicMessage(m,false)}},
+    onStateChange:e=>{if(e.data===YT.PlayerState.PLAYING)setMusicStatus("Играет");else if(e.data===YT.PlayerState.PAUSED)setMusicStatus("Пауза");else if(e.data===YT.PlayerState.ENDED)setMusicStatus("Трек завершён")},
+    onError:e=>setMusicStatus("YouTube не разрешил воспроизведение (код "+e.data+")")
+  }});
+};
+function stopMusic(){try{if(ytPlayer&&ytReady)ytPlayer.stopVideo()}catch(e){}}
+function enableMusicPlayback(){
+  musicUnlocked=true;
+  if(ytReady&&currentMusicId){try{ytPlayer.playVideo();ytPlayer.pauseVideo();setMusicStatus("Звук разрешён — можно запускать")}catch(e){}}
+  $("musicEnable").textContent="Звук разрешён";
+}
+function loadMusic(){
+  const id=extractYouTubeId($("musicUrl").value);
+  if(!id){toast("Вставь корректную ссылку или ID YouTube-видео");return}
+  currentMusicId=id;
+  const msg={kind:"MUSIC",action:"LOAD",data:{videoId:id},seq:++musicSeq,from:host?"host":"guest"};
+  if(host){applyMusicMessage(msg,false);if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+  else applyMusicMessage(msg,false);
+}
+function playSharedMusic(){
+  if(!currentMusicId){toast("Сначала добавь видео YouTube");return}
+  const time=ytReady?ytPlayer.getCurrentTime():0;
+  const msg={kind:"MUSIC",action:"PLAY",data:{time,startAt:Date.now()+1200},seq:++musicSeq,from:host?"host":"guest"};
+  if(host){applyMusicMessage(msg,false);if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+  else applyMusicMessage(msg,false);
+}
+function pauseSharedMusic(){
+  const msg={kind:"MUSIC",action:"PAUSE",data:{},seq:++musicSeq,from:host?"host":"guest"};
+  if(host){applyMusicMessage(msg,false);if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+}
+function stopSharedMusic(){
+  const msg={kind:"MUSIC",action:"STOP",data:{},seq:++musicSeq,from:host?"host":"guest"};
+  if(host){applyMusicMessage(msg,false);if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+}
+
 function sendAction(action,data={}){if(host){applyAction(0,action,data);return}if(conn&&conn.open){conn.send({kind:"ACTION",action,data});return}toast("Нет соединения с создателем комнаты. Переподключись.")}
 function validAttack(player,c){
   const g=state;
@@ -270,7 +357,7 @@ function handleHostConnection(c){
   if(conn&&conn.open){c.close();return}
   conn=c;
   c.on("open",()=>{connected=true;connection(true,"Игрок подключён");$("opponentName").textContent="Друг подключён";$("opponentLabel").textContent="Друг";state=newGame();sendState()});
-  c.on("data",msg=>{if(!msg||msg.kind!=="ACTION")return;applyAction(1,msg.action,msg.data||{})});
+  c.on("data",msg=>{if(msg?.kind==="MUSIC"){applyMusicMessage(msg,true);return}if(!msg||msg.kind!=="ACTION")return;applyAction(1,msg.action,msg.data||{})});
   c.on("close",()=>{connected=false;connection(false,"Соперник отключился");toast("Соперник отключился. Комната остаётся открытой.")});
   c.on("error",e=>toast("Ошибка соединения: "+e.message));
 }
@@ -320,7 +407,7 @@ function joinRoom(code){
       say("Связь установлена. Загружаем игру…");
       joinButton.disabled=false;
     });
-    conn.on("data",msg=>{if(msg?.kind==="STATE"){decodeState(msg);say("Игра синхронизирована.")}});
+    conn.on("data",msg=>{if(msg?.kind==="STATE"){decodeState(msg);say("Игра синхронизирована.")}else if(msg?.kind==="MUSIC"){applyMusicMessage(msg,false)}});
     conn.on("close",()=>{
       if(!settled){failJoin("Комната закрыта или соединение отклонено.");return}
       connection(false,"Соединение потеряно");toast("Связь с хостом потеряна. Вернись в лобби и подключись снова.");
@@ -335,6 +422,18 @@ function joinRoom(code){
   requestMedia();
 }
 document.addEventListener("pointerdown",unlockAudio,{once:true});
+$("musicLoad").addEventListener("click",loadMusic);
+$("musicUrl").addEventListener("keydown",e=>{if(e.key==="Enter")loadMusic()});
+$("musicSearch").addEventListener("click",()=>{
+  const q=$("musicUrl").value.trim();
+  if(!q){toast("Введи название песни для поиска");return}
+  window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(q),"_blank","noopener");
+});
+$("musicPlay").addEventListener("click",playSharedMusic);
+$("musicPause").addEventListener("click",pauseSharedMusic);
+$("musicStop").addEventListener("click",stopSharedMusic);
+$("musicEnable").addEventListener("click",enableMusicPlayback);
+$("musicVolume").addEventListener("input",e=>{if(ytReady)ytPlayer.setVolume(Number(e.target.value))});
 $("createRoom").addEventListener("click",createRoom);
 $("joinRoom").addEventListener("click",()=>joinRoom($("roomInput").value));
 $("roomInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,6)});
