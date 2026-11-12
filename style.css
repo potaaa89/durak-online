@@ -751,3 +751,12 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
  .music-actions #musicEnable{margin-left:0;flex:1}
  .youtube-player{height:180px}
 }
+
+
+.music-results{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px;max-height:260px;overflow:auto}
+.music-result{display:flex;align-items:center;gap:9px;min-width:0;text-align:left;background:#0a241a!important;border-color:#806b43!important}
+.music-result img{width:88px;height:50px;flex:0 0 88px;object-fit:cover;border-radius:5px}
+.music-result-info{display:flex;flex-direction:column;gap:4px;min-width:0}
+.music-result-info strong{font-size:11px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.music-result-info small{font-size:10px;color:#c6b58e}
+@media(max-width:760px){.music-results{grid-template-columns:1fr;max-height:220px}.music-result img{width:100px;height:56px;flex-basis:100px}}
