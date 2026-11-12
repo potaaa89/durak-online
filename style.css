@@ -534,3 +534,19 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 
 /* Separate background music controls */
 @media(max-width:760px){}
+
+/* Center the empty-table caption across the whole table, not just the battlefield */
+.play-zone{--supply-width:116px}
+.empty-table{
+  position:absolute;
+  left:calc(var(--supply-width) / 2);
+  top:50%;
+  width:max-content;
+  max-width:calc(100vw - 110px);
+  text-align:center;
+  transform:translate(-50%,-50%);
+  white-space:nowrap;
+  pointer-events:none;
+}
+@media(max-width:760px){.play-zone{--supply-width:91px}}
+@media(max-width:390px){.play-zone{--supply-width:84px}}
