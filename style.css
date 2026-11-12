@@ -602,3 +602,18 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 @media(min-width:761px){
   .video-dock .self-box{width:185px;right:26px;top:292px}
 }
+
+/* Portrait-oriented opponent video on mobile */
+@media(max-width:760px){
+  .video-dock .remote-box{
+    width:124px;
+    right:11px;
+    top:10px;
+  }
+  .video-dock .remote-box .video-box{
+    aspect-ratio:3/4;
+  }
+  .video-dock .self-box{
+    top:190px;
+  }
+}
