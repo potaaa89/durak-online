@@ -123,7 +123,7 @@ function applyMusicMessage(msg,relay=false){
   const d=msg.data||{};
   if(msg.action==="LOAD"){
     currentMusicId=d.videoId||"";
-    if(ytReady&&currentMusicId){ytPlayer.loadVideoById({videoId:currentMusicId,startSeconds:0});setMusicStatus("Загружено · "+currentMusicId);musicButtons(true)}
+    if(ytReady&&currentMusicId){ytPlayer.loadVideoById({videoId:currentMusicId,startSeconds:0});setMusicStatus("Загружено: "+(d.title||currentMusicId));musicButtons(true)}
     else musicPending=msg;
   }else if(msg.action==="PLAY"){
     const startAt=Number(d.startAt)||Date.now()+900;
@@ -155,6 +155,49 @@ function enableMusicPlayback(){
   if(ytReady&&currentMusicId){try{ytPlayer.playVideo();ytPlayer.pauseVideo();setMusicStatus("Звук разрешён — можно запускать")}catch(e){}}
   $("musicEnable").textContent="Звук разрешён";
 }
+async function searchYouTubeMusic(){
+  const raw=$("musicUrl").value.trim();
+  if(!raw){toast("Введи назву пісні або виконавця");return}
+  const videoId=extractYouTubeId(raw);
+  if(videoId){$("musicResults").innerHTML="";selectMusicVideo({videoId,title:"Відео YouTube",channel:""});return}
+  const box=$("musicResults");
+  box.textContent="Шукаємо на YouTube…";
+  $("musicSearch").disabled=true;
+  try{
+    const response=await fetch("https://durak-youtube-search.potaaa89.workers.dev/search?q="+encodeURIComponent(raw),{method:"GET"});
+    const payload=await response.json();
+    if(!response.ok)throw new Error(payload.error||("HTTP "+response.status));
+    const items=Array.isArray(payload.items)?payload.items:[];
+    box.innerHTML="";
+    if(!items.length){box.textContent="Нічого не знайдено. Спробуй іншу назву.";return}
+    items.forEach(item=>{
+      const row=document.createElement("button");
+      row.type="button";row.className="music-result";
+      const img=document.createElement("img");img.src=item.thumbnail||("https://i.ytimg.com/vi/"+encodeURIComponent(item.videoId)+"/mqdefault.jpg");img.alt="";img.loading="lazy";
+      const info=document.createElement("span");info.className="music-result-info";
+      const title=document.createElement("strong");title.textContent=item.title||"Без назви";
+      const channel=document.createElement("small");channel.textContent=item.channel||"YouTube";
+      info.append(title,channel);row.append(img,info);
+      row.addEventListener("click",()=>selectMusicVideo(item));
+      box.append(row);
+    });
+  }catch(error){
+    box.textContent="Помилка пошуку: "+(error.message||"не вдалося зв’язатися із сервером");
+  }finally{$("musicSearch").disabled=false}
+}
+function selectMusicVideo(item){
+  if(!item||!item.videoId)return;
+  currentMusicId=item.videoId;
+  const title=item.title||"Відео YouTube";
+  const msg={kind:"MUSIC",action:"LOAD",data:{videoId:item.videoId,title,channel:item.channel||""},seq:++musicSeq,from:host?"host":"guest"};
+  if(host){applyMusicMessage(msg,false);if(conn&&conn.open)conn.send(msg)}
+  else if(conn&&conn.open)conn.send(msg);
+  else applyMusicMessage(msg,false);
+  $("musicUrl").value=title;
+  $("musicResults").innerHTML="";
+  setMusicStatus("Обрано: "+title);
+}
+
 function loadMusic(){
   const id=extractYouTubeId($("musicUrl").value);
   if(!id){toast("Вставь корректную ссылку или ID YouTube-видео");return}
@@ -425,11 +468,9 @@ function joinRoom(code){
 document.addEventListener("pointerdown",unlockAudio,{once:true});
 $("musicLoad").addEventListener("click",loadMusic);
 $("musicUrl").addEventListener("keydown",e=>{if(e.key==="Enter")loadMusic()});
-$("musicSearch").addEventListener("click",()=>{
-  const q=$("musicUrl").value.trim();
-  if(!q){toast("Введи название песни для поиска");return}
-  window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(q),"_blank","noopener");
-});
+$("musicSearch").addEventListener("click",searchYouTubeMusic);
+$("musicUrl").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchYouTubeMusic()}});
+
 $("musicPlay").addEventListener("click",playSharedMusic);
 $("musicPause").addEventListener("click",pauseSharedMusic);
 $("musicStop").addEventListener("click",stopSharedMusic);
