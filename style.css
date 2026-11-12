@@ -631,3 +631,10 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
     height:auto!important;
   }
 }
+
+/* Mobile: lower the trump and draw pile slightly */
+@media(max-width:760px){
+  .supply-side{
+    transform:translateY(12px);
+  }
+}
