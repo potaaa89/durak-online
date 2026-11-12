@@ -660,6 +660,6 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
 
 /* Mobile: move the played cards and action buttons further down */
 @media(max-width:760px){
-  .battlefield{transform:translateY(55px);}
-  .actions{position:relative;top:65px;}
+  .battlefield{transform:translateY(75px);}
+  .actions{position:relative;top:85px;}
 }
