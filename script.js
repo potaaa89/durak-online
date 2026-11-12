@@ -104,9 +104,9 @@ function extractYouTubeId(value){
   try{
     const u=new URL(v);
     if(u.hostname==="youtu.be")return u.pathname.slice(1).split("/")[0].slice(0,11);
-    if(/(^|\\.)youtube\\.com$/.test(u.hostname)){
+    if(/(^|\.)youtube\.com$/.test(u.hostname)){
       if(u.searchParams.get("v"))return u.searchParams.get("v").slice(0,11);
-      const m=u.pathname.match(/\\/(?:embed|shorts|live)\\/([\\w-]{11})/);if(m)return m[1];
+      const m=u.pathname.match(/\/(?:embed|shorts|live)\/([\w-]{11})/);if(m)return m[1];
     }
   }catch(e){}
   return "";
