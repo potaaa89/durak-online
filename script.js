@@ -360,6 +360,31 @@ $("soundToggle").addEventListener("click",()=>{
   $("soundToggle").querySelector("span").textContent=soundEnabled?"Звук Вкл.":"Звук Выкл.";
   if(soundEnabled){unlockAudio();playSfx("card")}
 });
+const remoteBox=document.querySelector(".video-dock .remote-box");
+const expandRemoteBtn=$("expandRemoteVideo");
+if(remoteBox&&expandRemoteBtn){
+  const setExpanded=expanded=>{
+    remoteBox.classList.toggle("video-expanded",expanded);
+    expandRemoteBtn.textContent=expanded?"⤢":"⛶";
+    expandRemoteBtn.title=expanded?"Свернуть видео":"На весь экран";
+    expandRemoteBtn.setAttribute("aria-label",expanded?"Свернуть видео":"Развернуть видео соперника");
+  };
+  expandRemoteBtn.addEventListener("click",async e=>{
+    e.stopPropagation();
+    try{
+      if(document.fullscreenElement===remoteBox){
+        await document.exitFullscreen();
+      }else if(remoteBox.requestFullscreen){
+        await remoteBox.requestFullscreen();
+      }else{
+        setExpanded(!remoteBox.classList.contains("video-expanded"));
+      }
+    }catch(err){
+      setExpanded(!remoteBox.classList.contains("video-expanded"));
+    }
+  });
+  document.addEventListener("fullscreenchange",()=>setExpanded(document.fullscreenElement===remoteBox));
+}
 $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
   $("videoToggle").querySelector("span").textContent=videoCollapsed?"Показать видео":"Свернуть видео";
