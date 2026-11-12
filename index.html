@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#082b20">
   <title>Подкидной дурак — онлайн</title>
-  <link rel="stylesheet" href="style.css?v=remote-video-fullscreen-small-button">
+  <link rel="stylesheet" href="style.css?v=youtube-sync-player">
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'"></script>
 </head>
 <body>
@@ -112,6 +112,23 @@
           <button id="soundToggle" class="media-btn">🔊 <span>Звуки Вкл.</span></button>
         </div>
         <p id="gameHint">Подключи второго игрока, чтобы начать.</p>
+      <section class="music-panel" id="musicPanel">
+        <div class="music-heading"><span>♫</span><b>МУЗЫКА ДЛЯ ИГРЫ</b><small id="musicStatus">Ожидание трека</small></div>
+        <div class="music-controls">
+          <input id="musicUrl" type="text" placeholder="Вставь ссылку или ID видео YouTube" aria-label="Ссылка или ID видео YouTube">
+          <button id="musicLoad" type="button">Добавить</button>
+          <button id="musicSearch" type="button" title="Найти видео на YouTube">Поиск</button>
+        </div>
+        <div class="music-actions">
+          <button id="musicPlay" type="button" disabled>▶ Пуск</button>
+          <button id="musicPause" type="button" disabled>Ⅱ Пауза</button>
+          <button id="musicStop" type="button" disabled>■ Стоп</button>
+          <label>Громкость <input id="musicVolume" type="range" min="0" max="100" value="65"></label>
+          <button id="musicEnable" type="button">Включить звук</button>
+        </div>
+        <div id="youtubePlayer" class="youtube-player"></div>
+        <p class="music-note">У обоих игроков должен быть открыт сайт. При первом запуске браузер может попросить разрешить воспроизведение.</p>
+      </section>
         <button id="rematchBtn" class="secondary hidden">Сыграть ещё раз</button>
       </footer>
     </section>
@@ -126,6 +143,7 @@
     </div>
   </div>
   <div id="toast" class="toast" role="status"></div>
-  <script src="script.js?v=sort-trump-suit-first"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="script.js?v=youtube-sync-player"></script>
 </body>
 </html>
