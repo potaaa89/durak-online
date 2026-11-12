@@ -509,27 +509,31 @@ $("soundToggle").addEventListener("click",()=>{
 const remoteBox=document.querySelector(".video-dock .remote-box");
 const expandRemoteBtn=$("expandRemoteVideo");
 if(remoteBox&&expandRemoteBtn){
+  const homeParent=remoteBox.parentNode;
+  const homeNext=remoteBox.nextSibling;
+  let overlayOpen=false;
   const setExpanded=expanded=>{
+    overlayOpen=expanded;
+    if(expanded){
+      if(remoteBox.parentNode!==document.body)document.body.appendChild(remoteBox);
+      document.body.classList.add("remote-video-overlay-open");
+    }else{
+      document.body.classList.remove("remote-video-overlay-open");
+      if(remoteBox.parentNode===document.body){
+        if(homeNext&&homeNext.parentNode===homeParent)homeParent.insertBefore(remoteBox,homeNext);
+        else homeParent.appendChild(remoteBox);
+      }
+    }
     remoteBox.classList.toggle("video-expanded",expanded);
     expandRemoteBtn.textContent=expanded?"⤢":"⛶";
     expandRemoteBtn.title=expanded?"Свернуть видео":"На весь экран";
     expandRemoteBtn.setAttribute("aria-label",expanded?"Свернуть видео":"Развернуть видео соперника");
   };
-  expandRemoteBtn.addEventListener("click",async e=>{
-    e.stopPropagation();
-    try{
-      if(document.fullscreenElement===remoteBox){
-        await document.exitFullscreen();
-      }else if(remoteBox.requestFullscreen){
-        await remoteBox.requestFullscreen();
-      }else{
-        setExpanded(!remoteBox.classList.contains("video-expanded"));
-      }
-    }catch(err){
-      setExpanded(!remoteBox.classList.contains("video-expanded"));
-    }
+  expandRemoteBtn.addEventListener("click",e=>{
+    e.preventDefault();e.stopPropagation();
+    setExpanded(!overlayOpen);
   });
-  document.addEventListener("fullscreenchange",()=>setExpanded(document.fullscreenElement===remoteBox));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlayOpen)setExpanded(false)});
 }
 $("videoToggle").addEventListener("click",()=>{
   videoCollapsed=!videoCollapsed;$("videoDock").classList.toggle("collapsed",videoCollapsed);
