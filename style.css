@@ -833,3 +833,27 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
     z-index:12!important;
   }
 }
+
+
+/* Mobile: keep turn guidance visible immediately above the bottom action buttons */
+@media(max-width:760px){
+  .table-content .turn-message{
+    position:absolute!important;
+    left:12px!important;
+    right:12px!important;
+    bottom:52px!important;
+    width:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:5px 8px!important;
+    border-radius:7px!important;
+    background:rgba(3,28,19,.78)!important;
+    color:#f0dfb5!important;
+    font-size:10px!important;
+    line-height:1.25!important;
+    text-align:center!important;
+    z-index:11!important;
+    pointer-events:none!important;
+  }
+  .table-content .actions{bottom:8px!important;}
+}
