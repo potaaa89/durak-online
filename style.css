@@ -791,3 +791,19 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
     border-radius:7px!important;
   }
 }
+
+
+/* Mobile: anchor action buttons to the bottom edge of the playing table */
+@media(max-width:760px){
+  .table-content{position:relative!important;padding-bottom:48px!important;}
+  .table-content .actions{
+    position:absolute!important;
+    top:auto!important;
+    bottom:6px!important;
+    left:50%!important;
+    transform:translateX(-50%)!important;
+    width:min(280px,calc(100% - 24px))!important;
+    margin:0!important;
+    z-index:10!important;
+  }
+}
