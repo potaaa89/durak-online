@@ -591,3 +591,9 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .video-placeholder{font-size:26px}
   .video-placeholder small{font-size:11px}
 }
+
+/* Make opponent video the dominant picture on desktop */
+@media(min-width:761px){
+  .video-dock .remote-box{width:310px;right:26px;top:22px}
+  .video-dock .self-box{width:154px;right:26px;top:270px}
+}
