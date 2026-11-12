@@ -857,3 +857,9 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
   }
   .table-content .actions{bottom:8px!important;}
 }
+
+
+/* Mobile: remove the background behind turn guidance */
+@media(max-width:760px){
+  .table-content .turn-message{background:transparent!important;}
+}
