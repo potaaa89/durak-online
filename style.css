@@ -597,3 +597,8 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .video-dock .remote-box{width:310px;right:26px;top:22px}
   .video-dock .self-box{width:154px;right:26px;top:270px}
 }
+
+/* Slightly enlarge the local camera preview on desktop */
+@media(min-width:761px){
+  .video-dock .self-box{width:185px;right:26px;top:292px}
+}
