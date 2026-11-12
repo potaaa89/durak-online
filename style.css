@@ -663,3 +663,19 @@ body{min-height:100vh}button,input{font:inherit}button{cursor:pointer;touch-acti
   .battlefield{transform:translateY(75px);}
   .actions{position:relative;top:85px;}
 }
+
+
+/* Mobile: pin the turn/status message to the bottom edge of the playing table */
+@media(max-width:760px){
+  .table-content{position:relative;}
+  .turn-message{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    margin:0;
+    width:auto;
+    text-align:center;
+    z-index:3;
+  }
+}
