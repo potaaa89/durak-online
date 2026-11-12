@@ -123,12 +123,23 @@ function applyMusicMessage(msg,relay=false){
   const d=msg.data||{};
   if(msg.action==="LOAD"){
     currentMusicId=d.videoId||"";
-    if(ytReady&&currentMusicId){ytPlayer.loadVideoById({videoId:currentMusicId,startSeconds:0});setMusicStatus("Загружено: "+(d.title||currentMusicId));musicButtons(true)}
-    else musicPending=msg;
+    if(ytReady&&currentMusicId){
+      ytPlayer.loadVideoById({videoId:currentMusicId,startSeconds:0});
+      ytPlayer.setVolume(Number($("musicVolume").value));
+      setMusicStatus(musicUnlocked?"Трек загружен — можно слушать":"Трек выбран. Нажми «Включить звук» на своём устройстве");
+      musicButtons(true);
+      if(musicUnlocked){setTimeout(()=>{if(ytReady&&currentMusicId===d.videoId)ytPlayer.playVideo()},500)}
+    }else musicPending=msg;
   }else if(msg.action==="PLAY"){
     const startAt=Number(d.startAt)||Date.now()+900;
     const offset=Math.max(0,(Date.now()-startAt)/1000)+(Number(d.time)||0);
-    const run=()=>{if(!ytReady||!currentMusicId)return;ytPlayer.seekTo(offset,true);ytPlayer.playVideo();setMusicStatus("Воспроизводится у обоих")};
+    const run=()=>{
+      if(!ytReady||!currentMusicId)return;
+      ytPlayer.setVolume(Number($("musicVolume").value));
+      ytPlayer.seekTo(offset,true);
+      if(musicUnlocked){ytPlayer.playVideo();setMusicStatus("Воспроизведение синхронизировано")}
+      else{setMusicStatus("Соперник запустил музыку — нажми «Включить звук», чтобы услышать")}
+    };
     if(ytReady) setTimeout(run,Math.max(0,startAt-Date.now())); else musicPending=msg;
   }else if(msg.action==="PAUSE"){
     if(ytReady)ytPlayer.pauseVideo();setMusicStatus("Пауза");
@@ -152,8 +163,16 @@ if(window.YT&&window.YT.Player)window.onYouTubeIframeAPIReady();
 function stopMusic(){try{if(ytPlayer&&ytReady)ytPlayer.stopVideo()}catch(e){}}
 function enableMusicPlayback(){
   musicUnlocked=true;
-  if(ytReady&&currentMusicId){try{ytPlayer.playVideo();ytPlayer.pauseVideo();setMusicStatus("Звук разрешён — можно запускать")}catch(e){}}
   $("musicEnable").textContent="Звук разрешён";
+  if(ytReady&&currentMusicId){
+    try{
+      ytPlayer.setVolume(Number($("musicVolume").value));
+      ytPlayer.playVideo();
+      setMusicStatus("Звук разрешён — воспроизведение запущено");
+    }catch(e){setMusicStatus("Нажми «Пуск», чтобы начать музыку")}
+  }else{
+    setMusicStatus("Звук разрешён — ожидаем выбор песни");
+  }
 }
 async function searchYouTubeMusic(){
   const raw=$("musicUrl").value.trim();
@@ -195,7 +214,7 @@ function selectMusicVideo(item){
   else applyMusicMessage(msg,false);
   $("musicUrl").value=title;
   $("musicResults").innerHTML="";
-  setMusicStatus("Обрано: "+title);
+  setMusicStatus("Пісню вибрано для обох. Натисніть «Включить звук» на кожному пристрої, потім «Пуск».");
 }
 
 function loadMusic(){
