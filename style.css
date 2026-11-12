@@ -863,3 +863,25 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
 @media(max-width:760px){
   .table-content .turn-message{background:transparent!important;}
 }
+
+
+/* Keep own camera as a small overlay above opponent fullscreen video */
+.remote-box.video-expanded{z-index:2147483646!important;}
+.video-box.video-self-overlay{
+  position:fixed!important;
+  top:max(12px,env(safe-area-inset-top))!important;
+  left:max(12px,env(safe-area-inset-left))!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:min(104px,28vw)!important;
+  height:auto!important;
+  aspect-ratio:3/4!important;
+  margin:0!important;
+  z-index:2147483647!important;
+  border:2px solid #d5bd7b!important;
+  border-radius:10px!important;
+  box-shadow:0 5px 18px #0009!important;
+  overflow:hidden!important;
+  pointer-events:auto!important;
+}
+.video-box.video-self-overlay video{width:100%!important;height:100%!important;object-fit:cover!important;}
