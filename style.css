@@ -910,3 +910,6 @@ body.remote-video-overlay-open{overflow:hidden!important;overscroll-behavior:non
 @media(max-width:760px){.kitten-walk{width:54px!important;height:48px!important;}}
 @media(prefers-reduced-motion:reduce){.kitten-walk{display:block!important;animation:none!important;}.kitten-walk img{animation:none!important;}}
 body.remote-video-overlay-open .kitten-walk{z-index:2147483647!important;}
+
+/* Hide the roaming kitten between appearances */
+.kitten-walk.kitten-away{display:none!important;pointer-events:none!important;}
