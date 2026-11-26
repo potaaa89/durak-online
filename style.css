@@ -1024,3 +1024,57 @@ body:after{
  body:after{height:18px;opacity:.65}
  .holiday-greeting{font-size:9px;letter-spacing:1px;margin-top:7px}
 }
+
+
+/* Extra festive polish: gift boxes, snow banks, warm buttons and celebratory finish */
+body{background:
+ radial-gradient(ellipse at 12% 88%,#b51e2c22 0,transparent 28%),
+ radial-gradient(ellipse at 88% 82%,#e0bd6320 0,transparent 25%),
+ radial-gradient(ellipse at 50% 0%,#1d6a4a55 0,transparent 42%),
+ radial-gradient(ellipse at 50% 35%,#174f39 0,#092f22 58%,#041b14 100%)!important}
+.app:before,.app:after{
+ content:"";position:fixed;bottom:0;width:clamp(110px,18vw,250px);height:100px;
+ z-index:0;pointer-events:none;opacity:.72;
+ background:radial-gradient(ellipse at 50% 100%,#f4f7f2 0 42%,#dce9e7 43% 48%,transparent 70%);
+ filter:drop-shadow(0 -3px 9px #d8f1ff22)
+}
+.app:before{left:-55px;transform:rotate(-5deg)}
+.app:after{right:-55px;transform:scaleX(-1) rotate(-5deg)}
+.brand-mark.holiday-brand-mark{position:relative;color:#e7c879;text-shadow:0 0 12px #f4d98b88}
+.brand-mark.holiday-brand-mark:after{
+ content:"🎅";position:absolute;font-size:15px;left:15px;top:-7px;
+ filter:drop-shadow(0 1px 2px #0009);transform:rotate(14deg)
+}
+.primary{
+ background:linear-gradient(115deg,#f0d48b 0%,#c9a452 48%,#f3d98f 100%);
+ border:1px solid #fff0c4;box-shadow:0 5px 18px #0004,0 0 13px #e8c56a22
+}
+.primary:hover{filter:brightness(1.09)}
+.lobby{overflow:hidden;position:relative}
+.lobby:before{
+ content:"🎁";position:absolute;right:20px;bottom:12px;font-size:clamp(42px,7vw,76px);
+ opacity:.8;filter:drop-shadow(0 5px 5px #0008);transform:rotate(8deg);pointer-events:none;
+ animation:gift-wiggle 3.2s ease-in-out infinite
+}
+.lobby:after{
+ content:"🎄  ✨  🎁";position:absolute;left:18px;bottom:18px;
+ font-size:clamp(15px,2.3vw,23px);opacity:.8;filter:drop-shadow(0 2px 3px #0008);
+ pointer-events:none
+}
+.lobby-grid,.hero,.status-line,.footnote{position:relative;z-index:1}
+.lobby-card{background:linear-gradient(145deg,#ffffff0d,#7b1b2a12),#ffffff08}
+.room-info{border:1px solid #d8bd7655}
+.gamebar .room-chip{border-color:#e4c87977;box-shadow:0 0 12px #e4c87912}
+.game-footer .media-btn{border-color:#d8bd7644}
+.modal-card{background:
+ radial-gradient(circle at 50% 0%,#236345,#0b3022 65%);
+ box-shadow:0 20px 80px #0009,0 0 28px #e6c87822
+}
+.modal-card:before{content:"❄  ✨  ❄";display:block;color:#e9d69a;font-size:17px;letter-spacing:8px;margin-bottom:8px}
+@keyframes gift-wiggle{0%,100%{transform:rotate(8deg) translateY(0)}50%{transform:rotate(2deg) translateY(-5px)}}
+@media(prefers-reduced-motion:reduce){.lobby:before{animation:none!important}}
+@media(max-width:760px){
+ .app:before,.app:after{height:65px;width:100px;opacity:.5}
+ .lobby:before{right:8px;bottom:7px;font-size:42px}
+ .lobby:after{left:8px;bottom:12px;font-size:13px}
+}
