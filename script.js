@@ -382,7 +382,20 @@ function onCardTap(id){
   if(!hand.some(c=>cardId(c)===id))return;
   sendAction("PLAY",{id});selected=null;
 }
-function showResult(title,body,type="draw"){$("modalTitle").textContent=title;$("modalText").textContent=body;const card=$("modal").querySelector(".modal-card");card.classList.remove("result-win","result-loss","result-draw");card.classList.add("result-"+type);$("modalIcon").textContent=type==="win"?"🏆":type==="loss"?"♠":"🤝";$("modalStatus").textContent=type==="win"?"Вы выиграли партию":type==="loss"?"Победитель — соперник":"Партия завершилась вничью";$("modal").classList.remove("hidden")}
+function holidayConfetti(){
+  const colors=["#f4d27b","#f8f2e5","#d92f43","#3da66b","#9edcf5"];
+  for(let i=0;i<34;i++){
+    const bit=document.createElement("i");
+    bit.className="holiday-confetti";
+    bit.style.left=(Math.random()*100)+"vw";
+    bit.style.background=colors[i%colors.length];
+    bit.style.animationDelay=(Math.random()*.65)+"s";
+    bit.style.setProperty("--spin",(Math.random()*720-360)+"deg");
+    document.body.appendChild(bit);
+    setTimeout(()=>bit.remove(),2600);
+  }
+}
+function showResult(title,body,type="draw"){$("modalTitle").textContent=title;$("modalText").textContent=body;const card=$("modal").querySelector(".modal-card");card.classList.remove("result-win","result-loss","result-draw");card.classList.add("result-"+type);$("modalIcon").textContent=type==="win"?"🏆":type==="loss"?"♠":"🤝";$("modalStatus").textContent=type==="win"?"Вы выиграли партию":type==="loss"?"Победитель — соперник":"Партия завершилась вничью";$("modal").classList.remove("hidden");holidayConfetti()}
 function hideResult(){$("modal").classList.add("hidden")}
 async function requestMedia(){
   if(!navigator.mediaDevices?.getUserMedia){toast("Камера недоступна. Открой сайт по HTTPS в современном браузере.");return}
