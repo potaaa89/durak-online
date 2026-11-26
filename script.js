@@ -624,8 +624,10 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
   document.body.appendChild(cat);
   cat.setAttribute("role","button");
   cat.setAttribute("tabindex","0");
-  cat.setAttribute("aria-label","Поймать котика");
+  cat.setAttribute("aria-label","Поймать зелёного проказника");
   const action=cat.querySelector(".kitten-action");
+  const thief=cat.querySelector(".mascot-thief");
+  const tree=cat.querySelector(".mascot-tree");
   let x=24,y=140,targetX=24,targetY=140,heading=1,paused=false,visible=false;
   let last=0,restUntil=0,hitTimer=0,visibilityTimer=0;
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -651,6 +653,9 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
     if(document.hidden){visibilityTimer=setTimeout(appear,5000);return;}
     visible=true;
     cat.classList.remove("kitten-away");
+    const runningAway=Math.random()<0.5;
+    cat.classList.toggle("mascot-running-away",runningAway);
+    if(tree)tree.textContent=runningAway?"🎄":"🎄";
     nextTarget();
     visibilityTimer=setTimeout(hideAndWait,8000+Math.random()*9000);
   }
@@ -676,7 +681,7 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
     paused=true;
     clearTimeout(visibilityTimer);
     cat.classList.add("kitten-squashed");
-    action.textContent="МЯУ! ТЫ БУДУ!?";
+    action.textContent="ПОПАЛСЯ! ХО-ХО-ХО!";
     clearTimeout(hitTimer);
     hitTimer=setTimeout(()=>{
       cat.classList.remove("kitten-squashed");
