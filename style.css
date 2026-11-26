@@ -939,3 +939,11 @@ body.remote-video-overlay-open .kitten-walk{z-index:2147483647!important;}
 @keyframes gremlin-bob{from{translate:0 0}to{translate:0 -4px}}
 @keyframes gremlin-spark{0%{transform:scale(.5) rotate(-10deg);opacity:0}40%{opacity:1}100%{transform:scale(1.2) rotate(10deg);opacity:0}}
 @media(max-width:760px){.kitten-walk{width:64px!important;height:72px!important}.holiday-gremlin{transform:scaleX(var(--cat-facing,1)) scale(.86);transform-origin:left bottom}}
+
+
+/* Restore original kitten mascot appearance */
+.kitten-walk{width:72px!important;height:64px!important;}
+.kitten-walk img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;transform:scaleX(var(--cat-facing,1))!important;animation:kittenBob .42s ease-in-out infinite alternate!important;}
+.holiday-gremlin,.gremlin-snow{display:none!important;}
+.kitten-walk.kitten-squashed img{animation:none!important;transform:scaleX(1.25) scaleY(.42) translateY(32px)!important;}
+@media(max-width:760px){.kitten-walk{width:54px!important;height:48px!important;}}
