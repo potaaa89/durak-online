@@ -1078,3 +1078,16 @@ body{background:
  .lobby:before{right:8px;bottom:7px;font-size:42px}
  .lobby:after{left:8px;bottom:12px;font-size:13px}
 }
+
+
+.holiday-confetti{
+ position:fixed;top:-18px;width:8px;height:13px;border-radius:2px;z-index:100000;
+ pointer-events:none;opacity:0;animation:holiday-confetti-fall 2.2s cubic-bezier(.2,.7,.4,1) forwards;
+ box-shadow:0 1px 3px #0005
+}
+@keyframes holiday-confetti-fall{
+ 0%{opacity:0;transform:translate3d(0,-10px,0) rotate(0)}
+ 10%{opacity:1}
+ 100%{opacity:0;transform:translate3d(35px,105vh,0) rotate(var(--spin,360deg))}
+}
+@media(prefers-reduced-motion:reduce){.holiday-confetti{display:none!important}}
