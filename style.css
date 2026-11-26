@@ -969,3 +969,58 @@ body.remote-video-overlay-open .kitten-walk{z-index:2147483647!important;}
 @keyframes tree-sway{from{rotate:-7deg}to{rotate:7deg}}
 @keyframes star-twinkle{from{scale:.85;rotate:-12deg}to{scale:1.15;rotate:12deg}}
 @media(max-width:760px){.kitten-walk{width:78px!important;height:86px!important}}
+
+
+/* New Year atmosphere: gentle snowfall, warm lights and festive details */
+body{position:relative;isolation:isolate}
+body:before{
+  content:"";position:fixed;inset:-120px 0 0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(3px 3px at 40px 60px,#fff 98%,transparent),
+    radial-gradient(2px 2px at 120px 180px,#eaf7ff 98%,transparent),
+    radial-gradient(3px 3px at 220px 90px,#fff 98%,transparent),
+    radial-gradient(2px 2px at 310px 250px,#fff 98%,transparent),
+    radial-gradient(2px 2px at 420px 130px,#d9f1ff 98%,transparent),
+    radial-gradient(3px 3px at 520px 300px,#fff 98%,transparent);
+  background-size:600px 360px;
+  opacity:.48;animation:holiday-snowfall 18s linear infinite;
+}
+body:after{
+  content:"";position:fixed;left:0;right:0;top:0;height:24px;z-index:30;pointer-events:none;
+  background:
+    radial-gradient(circle at 5% 10px,#ffdf83 0 3px,transparent 4px),
+    radial-gradient(circle at 15% 13px,#f58b91 0 3px,transparent 4px),
+    radial-gradient(circle at 25% 9px,#b9e8ff 0 3px,transparent 4px),
+    radial-gradient(circle at 35% 13px,#ffdf83 0 3px,transparent 4px),
+    radial-gradient(circle at 45% 9px,#f58b91 0 3px,transparent 4px),
+    radial-gradient(circle at 55% 13px,#b9e8ff 0 3px,transparent 4px),
+    radial-gradient(circle at 65% 9px,#ffdf83 0 3px,transparent 4px),
+    radial-gradient(circle at 75% 13px,#f58b91 0 3px,transparent 4px),
+    radial-gradient(circle at 85% 9px,#b9e8ff 0 3px,transparent 4px),
+    radial-gradient(circle at 95% 13px,#ffdf83 0 3px,transparent 4px);
+  filter:drop-shadow(0 0 5px #f8d77b);opacity:.85;
+}
+.app{position:relative;z-index:1}
+.holiday-greeting{
+  display:inline-block;margin:9px auto 0;padding:7px 15px;border-radius:30px;
+  color:#ffe6a3;font-size:11px;font-weight:900;letter-spacing:2px;
+  border:1px solid #e6c87888;
+  background:linear-gradient(120deg,#9c1727aa,#0a593aaa);
+  box-shadow:0 0 18px #e6c87822,inset 0 0 12px #fff1;
+  animation:holiday-glow 2.8s ease-in-out infinite alternate;
+}
+.hero-suits{ text-shadow:0 0 12px #f5d88a66 }
+.lobby-card{position:relative;overflow:hidden}
+.lobby-card:after{
+  content:"✦  ❄  ✦";position:absolute;right:13px;top:10px;
+  color:#e7d59a66;font-size:13px;letter-spacing:5px;pointer-events:none
+}
+.table{box-shadow:inset 0 0 0 2px #b08b51,inset 0 0 70px #001b12,0 16px 30px #0005,0 0 24px #d8bb7040}
+.table:before{border-color:#e8d18b77}
+@keyframes holiday-snowfall{from{transform:translateY(0)}to{transform:translateY(360px)}}
+@keyframes holiday-glow{from{filter:brightness(.92);box-shadow:0 0 10px #e6c87818}to{filter:brightness(1.18);box-shadow:0 0 22px #e6c87855}}
+@media(prefers-reduced-motion:reduce){body:before,.holiday-greeting{animation:none!important}}
+@media(max-width:760px){
+ body:after{height:18px;opacity:.65}
+ .holiday-greeting{font-size:9px;letter-spacing:1px;margin-top:7px}
+}
