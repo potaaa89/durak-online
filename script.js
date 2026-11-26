@@ -624,7 +624,7 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
   document.body.appendChild(cat);
   cat.setAttribute("role","button");
   cat.setAttribute("tabindex","0");
-  cat.setAttribute("aria-label","Поймать зелёного рождественского проказника");
+  cat.setAttribute("aria-label","Поймать котика");
   const action=cat.querySelector(".kitten-action");
   let x=24,y=140,targetX=24,targetY=140,heading=1,paused=false,visible=false;
   let last=0,restUntil=0,hitTimer=0,visibilityTimer=0;
@@ -676,7 +676,7 @@ window.addEventListener("beforeunload",()=>{stopMusic();closeConnections()});
     paused=true;
     clearTimeout(visibilityTimer);
     cat.classList.add("kitten-squashed");
-    action.textContent="ПОПАЛСЯ! ХО-ХО-ХО!";
+    action.textContent="МЯУ! ТЫ БУДУ!?";
     clearTimeout(hitTimer);
     hitTimer=setTimeout(()=>{
       cat.classList.remove("kitten-squashed");
