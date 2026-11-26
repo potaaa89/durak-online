@@ -947,3 +947,25 @@ body.remote-video-overlay-open .kitten-walk{z-index:2147483647!important;}
 .holiday-gremlin,.gremlin-snow{display:none!important;}
 .kitten-walk.kitten-squashed img{animation:none!important;transform:scaleX(1.25) scaleY(.42) translateY(32px)!important;}
 @media(max-width:760px){.kitten-walk{width:54px!important;height:48px!important;}}
+
+
+/* Holiday prankster mascot: transparent PNG cutouts and playful tree-stealing scenes */
+.kitten-walk{width:104px!important;height:112px!important;overflow:visible!important;z-index:10000!important}
+.kitten-walk img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:contain!important;filter:drop-shadow(0 3px 4px #00170f99);animation:grinch-bounce .55s ease-in-out infinite alternate!important}
+.kitten-walk .mascot-sack{display:none!important}
+.kitten-walk.mascot-running-away .mascot-thief{display:none!important}
+.kitten-walk.mascot-running-away .mascot-sack{display:block!important}
+.kitten-walk .mascot-tree,.kitten-walk .mascot-star{position:absolute;z-index:3;pointer-events:none;filter:drop-shadow(0 2px 2px #0009)}
+.kitten-walk .mascot-tree{right:-15px;bottom:-3px;font-size:29px;transform-origin:bottom center;animation:tree-sway .65s ease-in-out infinite alternate}
+.kitten-walk .mascot-star{right:6px;top:-5px;font-size:19px;animation:star-twinkle .7s ease-in-out infinite alternate}
+.kitten-walk.mascot-running-away .mascot-tree{right:-24px;bottom:0;font-size:36px;transform:rotate(12deg)}
+.kitten-walk.mascot-running-away .mascot-star{display:none}
+.kitten-walk .gremlin-snow{position:absolute;inset:-12px -10px auto;white-space:nowrap;color:#e8fbff;font-size:18px;opacity:0;text-shadow:0 1px 4px #174b67;pointer-events:none}
+.kitten-walk .kitten-action{top:-27px!important;left:50%!important;right:auto!important;transform:translateX(-50%);white-space:nowrap;font-size:13px!important;font-weight:900;color:#fff!important;background:#b30d20;padding:5px 8px;border-radius:8px;z-index:5}
+.kitten-walk.kitten-squashed img{animation:none!important;transform:scaleY(.45)!important;transform-origin:center bottom}
+.kitten-walk.kitten-squashed .gremlin-snow{opacity:1;animation:gremlin-spark .8s ease-out}
+.kitten-walk.kitten-squashed .mascot-tree,.kitten-walk.kitten-squashed .mascot-star{opacity:0}
+@keyframes grinch-bounce{from{translate:0 0}to{translate:0 -4px}}
+@keyframes tree-sway{from{rotate:-7deg}to{rotate:7deg}}
+@keyframes star-twinkle{from{scale:.85;rotate:-12deg}to{scale:1.15;rotate:12deg}}
+@media(max-width:760px){.kitten-walk{width:78px!important;height:86px!important}}
